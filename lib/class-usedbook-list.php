@@ -18,15 +18,13 @@ class UsedBook_List_Table extends WP_List_Table {
         $columns = [
             'cb'        => '<input type="checkbox" />',
             'id'        => 'ID',
-            // 'image'     => '封面',
+            'images'    => '相册',
             'title'     => '书名',
-            'subtitle'  => "副标题",
             'author'    => '作者',
-            'language'  => '语言',
-            'category'  => '分类',
-            'years'     => '年代',
-            'createtime'=> '创建时间',
-            'status'    => '状态',
+            'weight'    => '重量',
+            'text'      => '文字',
+            'in_date'   => '入库时间',
+            'out_date'  => '出库时间',
             'operate'   => '操作',
         ];
         return $columns;
@@ -74,23 +72,6 @@ class UsedBook_List_Table extends WP_List_Table {
         return $results;
     }
 
-
-    public function column_status( $book ) {
-    
-        switch ($book['status']) {
-            case 'draft':
-                echo "<span style=\"background: #d63638;color: #fff;padding: 2px 5px;\">草稿</span>";
-                break;
-            case 'hidden':
-                echo "<span style=\"background: #d63638;color: #fff;padding: 2px 5px;\">下架</span>";
-                break;
-            default:
-                echo "<span style=\"background: #1b9012;color: #fff;padding: 2px 5px;\">正常</span>";
-                break;
-        }
-	}
-
-
     public function column_createtime( $book ) {
         return date("Y-m-d H:i:s", $book['createtime']);
 		
@@ -132,6 +113,6 @@ class UsedBook_List_Table extends WP_List_Table {
 
  
 	public function no_items() {
-		_e( 'No Book found.' );
+		_e( 'No Used Book found.' );
 	}
 }

@@ -69,8 +69,9 @@ function used_books_page()
                     }else{
                         $message = '<div id="message" class="notice notice-error"><p><strong>出现错误！</strong></p></div>';
                     }
+                }else{
+                    used_books_edit_page();
                 }
-                require_once(CS_DIR . "views/admin/book-edit.php");
                 break;
             case 'edit':
                 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -129,9 +130,7 @@ function used_books_page()
         ?>
         <div class="wrap">
             <h1 class="wp-heading-inline">全部二手书籍</h1>
-            <a href="?page=books&action=create" class="page-title-action">新增书籍</a>
-            <a href="?page=books&action=import_epub" class="page-title-action">导入epub</a>
-            <a href="?page=books" class="page-title-action">抓取书籍</a>
+            <a href="?page=used_books&action=create" class="page-title-action">录入书籍</a>
             <?php
                 $list_table = new UsedBook_List_Table();
                 $list_table->prepare_items();
@@ -140,4 +139,137 @@ function used_books_page()
         </div>
         <?php
     }
+}
+
+
+function used_books_edit_page($id = null){
+    if ($id) {
+        $data = cs_get_ebook_item($id);
+        $data->tags = implode(",", array_column(cs_get_ebook_tags($id), 'name'));
+    }
+?>
+    <div class="wrap">
+        <h1 class="wp-heading-inline"><?= $id ? "编辑数据" : "新增书籍"; ?></h1>
+        <a href="?page=books" class="page-title-action">返回列表</a>
+        <hr class="wp-header-end">
+    
+        <form method="post" enctype="multipart/form-data">
+            <?php if ($id) { ?>
+                <input type="hidden" name="id" value="<?= $data->id; ?>" />
+            <?php } ?>
+    
+            <table class="form-table" role="presentation">
+                <tbody>
+                    <tr>
+                        <th scope="row"><label for="title">书名</label></th>
+                        <td><input name="title" type="text" id="title" value="<?= $id ? $data->title : ""; ?>" class="regular-text"></td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row">
+                            <label for="image">封面</label>
+                        </th>
+                        <td>
+                            <input name="image" type="text" id="image" value="<?= $id ? $data->image : ""; ?>" class="regular-text">
+                            <input name="books_image" type="file" id="books_image" class="regular-text">
+                            
+                            <br>
+                            <?php 
+                                if($id){
+                                    if($data->image){
+                                        echo "<img src =\"$data->image\" width=\"100\"/>";
+                                    }else{
+                                        echo "<img src =\"/uploads/book_covers/{$id}.png\" width=\"100\"/>";
+                                    }
+                                    
+                                }
+                            ?>
+                        </td>
+                    </tr>
+    
+                    <tr>
+                        <th scope="row">
+                            <label for="summary">Text</label>
+                        </th>
+                        <td>
+                            <textarea name="summary" class="regular-text" id="summary" rows="10" cols="40"><?= $id ? $data->summary : ""; ?></textarea>
+                        </td>
+                    </tr>
+    
+                    
+    
+                    <tr>
+                        <th scope="row">
+                            <label for="pubdate">重量</label>
+                        </th>
+                        <td>
+                            <input name="pubdate" type="text" id="pubdate" value="<?= $id ? $data->pubdate : ""; ?>" class="regular-text"> g
+                        </td>
+                    </tr>
+    
+                    <tr id="file_list">
+                        <th scope="row">
+                            <label for="status">附属文件</label>
+                        </th>
+                        <td>
+                            <?php
+                                if($id){
+                                    foreach(wsg_get_books_files($id) as $file){
+                                        echo "<p>
+                                                <input type=\"text\" value=\"{$file->fileurl}\" class=\"regular-text\" readonly=\"true\"/>
+                                                <span class=\"button action\" onClick=\"del_file({$file->id})\">删除</span>
+                                            </p>";
+                                    }
+                                }
+                            ?>
+                            <p>
+                                <input name="fileurl[]" type="text" class="regular-text" />
+                                <span class="button button-primary" id="add_file">+ 添加</span>
+                            </p>
+                            <div id="more_file">
+    
+                            </div>
+                            
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">
+                            <label for="status">状态</label>
+                        </th>
+                        <td>
+                            <select name="status" id="status">
+                                <option value="normal" <?= $id && $data->status == "normal" ? 'selected="selected"' : ""; ?>>正常</option>
+                                <option value="draft" <?= $id && $data->status == "draft" ? 'selected="selected"' : ""; ?>>草稿</option>
+                                <option value="hidden" <?= $id && $data->status == "hidden" ? 'selected="selected"' : ""; ?>>隐藏</option>
+                            </select>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <p class="submit"><input type="submit" name="submit" id="submit" class="button button-primary" value="保存更改"></p>
+        </form>
+    
+    </div>
+    <script>
+        function type_change() {
+            var select = document.getElementById("type").value;
+            if (select == "pdf") {
+                jQuery("#file_list").show();
+                
+            } else {
+                jQuery("#file_list").hide();
+            }
+        }
+        function del_file(id) {
+            alert(id);
+        }
+    
+        jQuery("#add_file").click(function(){
+            jQuery("#more_file").append('<p><input name="fileurl[]" type="text" class="regular-text" /> <span class="button action" onclick="jQuery(this).parent().remove();">删除</span></p>');
+        });
+    
+    </script>
+
+<?php 
+
 }
