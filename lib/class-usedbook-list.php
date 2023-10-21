@@ -18,11 +18,10 @@ class UsedBook_List_Table extends WP_List_Table {
         $columns = [
             'cb'        => '<input type="checkbox" />',
             'id'        => 'ID',
+            'name'     => '书名',
+            'image'    => '主图',
             'images'    => '相册',
-            'title'     => '书名',
-            'author'    => '作者',
             'weight'    => '重量',
-            'text'      => '文字',
             'in_date'   => '入库时间',
             'out_date'  => '出库时间',
             'operate'   => '操作',
@@ -72,29 +71,26 @@ class UsedBook_List_Table extends WP_List_Table {
         return $results;
     }
 
-    public function column_createtime( $book ) {
-        return date("Y-m-d H:i:s", $book['createtime']);
-		
-	}
 
-    public function column_title( $book ) {
-        return "<a href=\"?page=chapters&book_id={$book['id']}\">{$book['title']}</a>";
+
+    public function column_name( $book ) {
+        return "<a href=\"?page=chapters&book_id={$book['id']}\">{$book['name']}</a>";
 	}
 
     public function column_image( $book ) {
-        return '<img src="'.wsg_get_books_cover($book['image'], $book['id']).'" width="80"/>';
+        return '<img src="'.$book['image'].'" width="80"/>';
+	}
+
+    public function column_images( $book ) {
+        $html = "";
+        foreach(explode(";",$book['images']) as $image){
+            $html .= "<img src=\"$image\" width=\"80\"/>";
+        }
+        return $html;
 	}
     
-
     public function column_operate( $book ) {
-        $html = "[<a href=\"?page=books&action=edit&id={$book['id']}\">编辑</a>]"; 
-        $html .= "[<a href=\"?page=books&action=copy&id={$book['id']}\">复制</a>] <br>";
-        $html .= "[<a href=\"?page=books&action=remake_cover&id={$book['id']}\">重制封面</a>]"; 
-        switch ($book['status']) {
-            case 'normal':
-                $html .= "[<a href=\"?page=books&action=ban&id={$book['id']}\">下架</a>]"; //还并未开发此功能
-                break;
-        }
+        $html = "[<a href=\"?page=books&action=edit&id={$book['id']}\">下架</a>]"; 
 		return $html;
 	}
 

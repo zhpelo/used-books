@@ -61,13 +61,13 @@ function used_books_page()
         switch ($_GET['action']) {
             case 'create':
                 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                    if($ebook_id = cs_ebook_add($_POST)){
-                        $message = '<div id="message" class="updated notice">
+                    if($book_id = used_books_add($_POST)){
+                        echo '<div id="message" class="updated notice">
                                         <p><strong>书籍信息修改完成</strong></p>
-                                        <p><a href="?page=chapters&ebook_id='.$ebook_id.'">新增章节</a> | <a href="/book/'.$ebook_id.'/">前台查看</a></p>
+                                        <p><a href="?page=chapters&ebook_id='.$book_id.'">新增章节</a> | <a href="/book/'.$book_id.'/">前台查看</a></p>
                                     </div>';
                     }else{
-                        $message = '<div id="message" class="notice notice-error"><p><strong>出现错误！</strong></p></div>';
+                        echo '<div id="message" class="notice notice-error"><p><strong>出现错误！</strong></p></div>';
                     }
                 }else{
                     used_books_edit_page();
@@ -100,30 +100,8 @@ function used_books_page()
                 }
                 require_once(CS_DIR . "views/admin/book-edit.php");
                 break; 
-            case 'import_epub':
-                require_once(CS_DIR . "views/admin/book-import-epub.php");
-                break; 
-            case 'remake_cover':
-                if($cover = cs_make_book_cover($id)){
-                    echo "<img src=\"$cover\"/>";
-                }
-                break;
             case 'ban':
                 exit("开始下架书籍");
-                break;
-            case 'make_pdf':
-                if(wsg_make_pdf($id)){
-                    echo "pdf文件生成 完成";
-                }else{
-                    echo "pdf文件生成 失败";
-                }
-                break;
-            case 'make_epub':
-                if(wsg_make_epub($id)){
-                    echo "epub文件生成 完成";
-                }else{
-                    echo "epub文件生成 失败";
-                }
                 break;
         }
     } else {
@@ -131,6 +109,11 @@ function used_books_page()
         <div class="wrap">
             <h1 class="wp-heading-inline">全部二手书籍</h1>
             <a href="?page=used_books&action=create" class="page-title-action">录入书籍</a>
+            <style>
+                .column-images{
+                    width: 500px;
+                }
+            </style>
             <?php
                 $list_table = new UsedBook_List_Table();
                 $list_table->prepare_items();
@@ -149,7 +132,7 @@ function used_books_edit_page($id = null){
     }
 ?>
     <div class="wrap">
-        <h1 class="wp-heading-inline"><?= $id ? "编辑数据" : "新增书籍"; ?></h1>
+        <h1 class="wp-heading-inline"><?= $id ? "编辑数据" : "二手书籍入库"; ?></h1>
         <a href="?page=books" class="page-title-action">返回列表</a>
         <hr class="wp-header-end">
     
@@ -162,17 +145,14 @@ function used_books_edit_page($id = null){
                 <tbody>
                     <tr>
                         <th scope="row"><label for="title">书名</label></th>
-                        <td><input name="title" type="text" id="title" value="<?= $id ? $data->title : ""; ?>" class="regular-text"></td>
+                        <td><input name="name" type="text" id="name" value="<?= $id ? $data->name : ""; ?>" class="regular-text"></td>
                     </tr>
-
                     <tr>
                         <th scope="row">
                             <label for="image">封面</label>
                         </th>
                         <td>
-                            <input name="image" type="text" id="image" value="<?= $id ? $data->image : ""; ?>" class="regular-text">
-                            <input name="books_image" type="file" id="books_image" class="regular-text">
-                            
+                            <input name="image" type="file"  accept="image/*" class="regular-text"/>
                             <br>
                             <?php 
                                 if($id){
@@ -187,17 +167,15 @@ function used_books_edit_page($id = null){
                         </td>
                     </tr>
     
-                    <tr>
+                    <tr id="file_list">
                         <th scope="row">
-                            <label for="summary">Text</label>
+                            <label for="status">相册</label>
                         </th>
                         <td>
-                            <textarea name="summary" class="regular-text" id="summary" rows="10" cols="40"><?= $id ? $data->summary : ""; ?></textarea>
+                            <input name="images[]" type="file" class="regular-text" accept="image/*" multiple="multiple" />
                         </td>
                     </tr>
-    
-                    
-    
+
                     <tr>
                         <th scope="row">
                             <label for="pubdate">重量</label>
@@ -206,70 +184,83 @@ function used_books_edit_page($id = null){
                             <input name="pubdate" type="text" id="pubdate" value="<?= $id ? $data->pubdate : ""; ?>" class="regular-text"> g
                         </td>
                     </tr>
-    
-                    <tr id="file_list">
-                        <th scope="row">
-                            <label for="status">附属文件</label>
-                        </th>
-                        <td>
-                            <?php
-                                if($id){
-                                    foreach(wsg_get_books_files($id) as $file){
-                                        echo "<p>
-                                                <input type=\"text\" value=\"{$file->fileurl}\" class=\"regular-text\" readonly=\"true\"/>
-                                                <span class=\"button action\" onClick=\"del_file({$file->id})\">删除</span>
-                                            </p>";
-                                    }
-                                }
-                            ?>
-                            <p>
-                                <input name="fileurl[]" type="text" class="regular-text" />
-                                <span class="button button-primary" id="add_file">+ 添加</span>
-                            </p>
-                            <div id="more_file">
-    
-                            </div>
-                            
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">
-                            <label for="status">状态</label>
-                        </th>
-                        <td>
-                            <select name="status" id="status">
-                                <option value="normal" <?= $id && $data->status == "normal" ? 'selected="selected"' : ""; ?>>正常</option>
-                                <option value="draft" <?= $id && $data->status == "draft" ? 'selected="selected"' : ""; ?>>草稿</option>
-                                <option value="hidden" <?= $id && $data->status == "hidden" ? 'selected="selected"' : ""; ?>>隐藏</option>
-                            </select>
-                        </td>
-                    </tr>
                 </tbody>
             </table>
             <p class="submit"><input type="submit" name="submit" id="submit" class="button button-primary" value="保存更改"></p>
         </form>
-    
     </div>
-    <script>
-        function type_change() {
-            var select = document.getElementById("type").value;
-            if (select == "pdf") {
-                jQuery("#file_list").show();
-                
-            } else {
-                jQuery("#file_list").hide();
-            }
-        }
-        function del_file(id) {
-            alert(id);
-        }
-    
-        jQuery("#add_file").click(function(){
-            jQuery("#more_file").append('<p><input name="fileurl[]" type="text" class="regular-text" /> <span class="button action" onclick="jQuery(this).parent().remove();">删除</span></p>');
-        });
-    
-    </script>
-
 <?php 
 
+}
+
+
+function used_books_image_upload($key){
+	// 检查是否有文件上传
+    if (!isset($_FILES[$key]) && $_FILES[$key]) {
+		return false;
+	}
+	$file = $_FILES[$key];
+	// 检查上传文件是否有错误
+	if ($file['error'] !== UPLOAD_ERR_OK) {
+		// echo '文件上传出错：' . $file['error'];
+		return false;
+	}
+	// 设置上传目录
+	$upload_dir = wp_upload_dir();
+	$target_dir = $upload_dir['path'] . '/';
+	// 生成唯一的文件名
+	$file_name = wp_unique_filename($target_dir,  $file['name']);
+	// 移动文件到目标目录
+	if (!move_uploaded_file($file['tmp_name'], $target_dir . $file_name)) {
+		return false;
+	}
+	return $upload_dir['url'] .'/'. $file_name;
+}
+
+function used_books_add(){
+    global $wpdb;
+    $data = [];
+    $data['name'] = trim($_POST['name']);
+
+    $upload_dir = wp_upload_dir();
+    $target_dir = $upload_dir['basedir'].'/used_books'.$upload_dir['subdir'] . '/';
+    $url_dir = $upload_dir['baseurl'].'/used_books'.$upload_dir['subdir'] . '/';
+    mkdirs($target_dir);
+
+    $file_name = wp_unique_filename($target_dir,  $_FILES['image']['name']);
+
+    if( move_uploaded_file( $_FILES['image']['tmp_name'], $target_dir . $file_name) ){
+        
+        $data['image'] = $url_dir . $file_name;
+    }
+
+    $file_array = reArrayFiles($_FILES['images']);
+    $data['images'] = "";
+    foreach ($file_array as $file) {
+        $file_name = wp_unique_filename($target_dir,  $file['name']);
+        // 移动文件到目标目录
+        if (move_uploaded_file($file['tmp_name'], $target_dir . $file_name)) {
+            $data['images'] .= $url_dir . $file_name.";";
+        }
+    }
+    $data['in_date'] = current_time('mysql');
+    
+    $wpdb->insert("{$wpdb->prefix}used_books", $data);
+    return $wpdb->insert_id;
+}
+
+
+function reArrayFiles(&$file_post) {
+
+    $file_ary = array();
+    $file_count = count($file_post['name']);
+    $file_keys = array_keys($file_post);
+
+    for ($i=0; $i<$file_count; $i++) {
+        foreach ($file_keys as $key) {
+            $file_ary[$i][$key] = $file_post[$key][$i];
+        }
+    }
+
+    return $file_ary;
 }
