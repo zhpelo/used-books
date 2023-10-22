@@ -264,3 +264,85 @@ function reArrayFiles(&$file_post) {
 
     return $file_ary;
 }
+
+
+function used_books_page_template($template) {
+    if (is_page('used-books')) {
+        $new_template = plugin_dir_path(__FILE__) . 'templates/used-books.php';
+        if (file_exists($new_template)) {
+            return $new_template;
+        }
+    }
+    if (is_page('used-orders')) {
+        $new_template = plugin_dir_path(__FILE__) . 'templates/used-orders.php';
+        if (file_exists($new_template)) {
+            return $new_template;
+        }
+    }
+    return $template;
+}
+add_filter('page_template', 'used_books_page_template');
+
+
+function used_books_list_card(){
+    global $wpdb;
+    $results = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}used_books");
+
+    echo '<div class="used-books-list">';
+    if ($results) {
+        foreach ($results as $row) {
+            used_books_item_card($row);
+        }
+    } else {
+        echo 'No used books found.';
+    }
+    echo '</div>';
+}
+
+function used_books_item_card($book){
+?>
+    <div class="item">
+        <a href="/used-books/<?=$book->id;?>/">
+            <img src="<?=$book->image;?>" alt="<?=$book->name;?>" title="<?=$book->name;?>">
+            <h3><?=$book->name;?></h3>
+        </a>
+    </div>
+<?php
+}
+
+function used_books_show_card($id){
+    global $wpdb;
+    $book = $wpdb->get_row("SELECT * FROM `{$wpdb->prefix}used_books` WHERE `id` = $id");
+?>
+    <div class="buyBox" style="display: flex;">
+        <div>
+            <img src="<?=$book->image;?>" width="200">
+        </div>
+        <div class="info" style="padding: 20px;">
+            <h1><?=$book->name;?></h1>
+            <p>价格：9.9 元</p>
+            <p>运费：包邮 （新疆，西藏，内蒙古地区除外）</p>
+            <div class="wp-block-buttons is-layout-flex">
+                <a class="wp-block-button__link wp-element-button"  href="/used-orders/?action=buy&id=2">
+                    立即购买
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="gallery" style="margin-top: 2rem;">
+    <img src="<?=$book->image;?>"/>
+        <?php
+           foreach(explode(";",$book->images) as $image){
+                echo  "<img src=\"$image\"/>";
+            }
+        ?>
+
+    </div>
+<?php
+}
+
+
+function custom_rewrite_rule() {
+    add_rewrite_rule('^used-books/([^/]+)/?', 'index.php?pagename=used-books&id=$matches[1]', 'top');
+}
+add_action('init', 'custom_rewrite_rule');
