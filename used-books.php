@@ -20,18 +20,38 @@ function usedbooks_initializen() {
     $table_name = $wpdb->prefix . "used_books";
     if($wpdb->get_var("show tables like '$table_name'") != $table_name) {
         $sql = "CREATE TABLE `{$table_name}` (
-            `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
-            `name` int NOT NULL COMMENT '书名',
-            `images` int NOT NULL COMMENT '图册',
-            `weight` int NOT NULL COMMENT '重量',
-            `price` int NOT NULL COMMENT '价格',
-            `text` int NOT NULL COMMENT '文字',
-            `in_date` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '入库时间',
-            `out_date` datetime NULL COMMENT '出库时间'
-          );";
+                    `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+                    `name` varchar(255) NOT NULL COMMENT '书名',
+                    `image` varchar(255) NOT NULL,
+                    `images` text NOT NULL COMMENT '图册',
+                    `weight` int(11) NOT NULL COMMENT '重量',
+                    `price` int(11) NOT NULL COMMENT '价格',
+                    `text` int(11) NOT NULL COMMENT '文字',
+                    `in_date` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '入库时间',
+                    `out_date` datetime DEFAULT NULL COMMENT '出库时间',
+                    PRIMARY KEY (`id`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
     }
+
+    $table_name = $wpdb->prefix . "used_orders";
+    if($wpdb->get_var("show tables like '$table_name'") != $table_name) {
+        $sql = "CREATE TABLE `{$table_name}` (
+                    `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '订单 id',
+                    `user_id` int(11) NOT NULL COMMENT '用户 id',
+                    `buyer_name` varchar(20) NOT NULL COMMENT '买家姓名',
+                    `buyer_phone` varchar(18) NOT NULL COMMENT '买家手机号',
+                    `buyer_address` varchar(255) NOT NULL COMMENT '买家地址',
+                    `used_book_id` int(11) NOT NULL COMMENT '二手书id',
+                    `create_date` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '创建时间',
+                    `paid_date` datetime NOT NULL COMMENT '付款时间',
+                    PRIMARY KEY (`id`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
+    }
+
 }
 
 
@@ -50,7 +70,6 @@ function used_books_add_menu()
 
 }
 add_action('admin_menu', 'used_books_add_menu');
-
 
 function used_books_page()
 {
@@ -274,6 +293,11 @@ function used_books_page_template($template) {
         }
     }
     if (is_page('used-orders')) {
+        //判断是否登录
+        if (!is_user_logged_in()) {
+            //如果没有登陆的用户访问，就重定向到登陆页面
+            return auth_redirect();
+        }
         $new_template = plugin_dir_path(__FILE__) . 'templates/used-orders.php';
         if (file_exists($new_template)) {
             return $new_template;
@@ -320,8 +344,8 @@ function used_books_show_card($id){
         </div>
         <div class="info" style="padding: 20px;">
             <h1><?=$book->name;?></h1>
-            <p>价格：9.9 元</p>
-            <p>运费：包邮 （新疆，西藏，内蒙古地区除外）</p>
+            <p>价格：<span style="color: red;font-size: xxx-large;font-style: italic;">9.9</span> 元</p>
+            <p>运费：<b style="color: red;">包邮</b><span style="font-size: small;font-style: italic;">（新疆，西藏，内蒙古地区除外）</span></p>
             <div class="wp-block-buttons is-layout-flex">
                 <a class="wp-block-button__link wp-element-button"  href="/used-orders/?action=buy&id=2">
                     立即购买
@@ -346,3 +370,58 @@ function custom_rewrite_rule() {
     add_rewrite_rule('^used-books/([^/]+)/?', 'index.php?pagename=used-books&id=$matches[1]', 'top');
 }
 add_action('init', 'custom_rewrite_rule');
+
+
+function used_books_qrcode_pay($order_id)
+{
+	$arr = array(
+		"pid" => CS_PAY_PID,
+		"type" => "alipay",
+		"notify_url" => home_url()."/epay/notify/",
+		"return_url" => home_url()."/epay/return/",
+		"out_trade_no" => md5($order_id).'-'.$order_id,
+		"name" => "购买二手书$order_id",
+		"money" => '9.9',
+		"sign_type" => "MD5"
+	);
+	$payurl= "http://7-pay.cn/submit.php?pid=".CS_PAY_PID."&type={$arr['type']}&notify_url={$arr['notify_url']}&return_url={$arr['return_url']}&out_trade_no={$arr['out_trade_no']}&name={$arr['name']}&money={$arr['money']}&sign_type={$arr['sign_type']}&sign=".cs_get_sign($arr,CS_PAY_KEY);
+
+    echo "<script type=\"text/javascript\">window.location.href=\"$payurl\";</script>";
+}
+
+
+
+function used_books_process_order_post() {
+    global $wpdb;
+    $error_message = [];
+    if(!isset($_POST['buyer_name'])){
+        $error_message[] = "姓名格式不正确！";
+    }
+    if(strlen($_POST['buyer_phone']) != 11){
+        $error_message[] = "手机号格式不正确！";
+    }
+    if(strlen($_POST['buyer_address']) < 10){
+        $error_message[] = "收货地址格式不正确！";
+    }
+    if( $error_message){
+        foreach($error_message as $msg){
+            echo '<div class="error">' . $msg . '</div>';;
+        }
+    }else{
+        $data = [
+            'user_id'       => get_current_user_id(),
+            'used_book_id'  => $_POST['used_book_id'],
+            'buyer_name'    => $_POST['buyer_name'],
+            'buyer_phone'   => $_POST['buyer_phone'],
+            'buyer_address' => $_POST['buyer_address'],
+            'create_date'   => current_time('mysql'),
+        ];
+        $wpdb->insert($wpdb->prefix.'used_orders', $data);
+        $order_id = $wpdb->insert_id;
+        if($order_id){
+            used_books_qrcode_pay($order_id);
+        }else{
+            echo "<p>ERROR：订单提交失败</p>";
+        }
+    }
+}
