@@ -73,74 +73,42 @@ add_action('admin_menu', 'used_books_add_menu');
 
 function used_books_page()
 {
-    $id = input('id');
-    //显示书籍列表
-    if (isset($_GET['action'])) {
-        $message = '';
-        switch ($_GET['action']) {
-            case 'create':
-                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                    if($book_id = used_books_add($_POST)){
-                        echo '<div id="message" class="updated notice">
-                                        <p><strong>书籍信息修改完成</strong></p>
-                                        <p><a href="?page=chapters&ebook_id='.$book_id.'">新增章节</a> | <a href="/book/'.$book_id.'/">前台查看</a></p>
-                                    </div>';
-                    }else{
-                        echo '<div id="message" class="notice notice-error"><p><strong>出现错误！</strong></p></div>';
-                    }
-                }else{
-                    used_books_edit_page();
-                }
-                break;
-            case 'edit':
-                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                    if(cs_ebook_edit($id, $_POST)){
-                        $message = '<div id="message" class="updated notice">
-                                        <p><strong>书籍信息修改完成</strong></p>
-                                        <p><a href="?page=chapters&ebook_id='.$id.'">去编辑本书的章节 ----> </a></p>
-                                    </div>';
-                    }else{
-                        $message = '<div id="message" class="notice notice-error"><p><strong>出现错误！</strong></p></div>';
-                    }
-                }
-                require_once(CS_DIR . "views/admin/book-edit.php");
-                break;
-            case 'copy':
-                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                    unset($_POST['id']);
-                    if($ebook_id = cs_ebook_add($_POST)){
-                        $message = '<div id="message" class="updated notice">
-                                        <p><strong>书籍复制完成</strong></p>
-                                        <p><a href="?page=chapters&ebook_id='.$ebook_id.'">新增章节</a> | <a href="/book/'.$ebook_id.'/">前台查看</a></p>
-                                    </div>';
-                    }else{
-                        $message = '<div id="message" class="notice notice-error"><p><strong>复制出现错误！</strong></p></div>';
-                    }
-                }
-                require_once(CS_DIR . "views/admin/book-edit.php");
-                break; 
-            case 'ban':
-                exit("开始下架书籍");
-                break;
-        }
-    } else {
-        ?>
-        <div class="wrap">
-            <h1 class="wp-heading-inline">全部二手书籍</h1>
-            <a href="?page=used_books&action=create" class="page-title-action">录入书籍</a>
-            <style>
-                .column-images{
-                    width: 500px;
-                }
-            </style>
-            <?php
-                $list_table = new UsedBook_List_Table();
-                $list_table->prepare_items();
-                $list_table->display();
-            ?>
-        </div>
+    $action = input('action');
+    ?>
+    <div class="wrap">
+        <h1 class="wp-heading-inline">二手书籍</h1>
+        <a href="?page=used_books&action=create" class="page-title-action">录入书籍</a>
+        <a href="?page=used_books" class="page-title-action">返回列表</a>
+        <style>
+            .column-images{
+                width: 500px;
+            }
+        </style>
         <?php
-    }
+            switch ($action) {
+                case 'create':
+                    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                        if($book_id = used_books_add($_POST)){
+                            echo '<div id="message" class="updated notice"><p>二手书籍信息录入完成，<a href="/used-books/'.$book_id.'/">去前台查看</a></p></div>';
+                        }else{
+                            echo '<div id="message" class="notice notice-error"><p><strong>出现错误！</strong></p></div>';
+                        }
+                    }else{
+                        used_books_edit_page();
+                    }
+                    break;
+                case 'ban':
+                    $id = input('id');
+                    exit("开始下架书籍");
+                    break;
+                default:
+                    $list_table = new UsedBook_List_Table();
+                    $list_table->prepare_items();
+                    $list_table->display();
+            }
+        ?>
+    </div>
+<?php
 }
 
 
@@ -150,64 +118,58 @@ function used_books_edit_page($id = null){
         $data->tags = implode(",", array_column(cs_get_ebook_tags($id), 'name'));
     }
 ?>
-    <div class="wrap">
-        <h1 class="wp-heading-inline"><?= $id ? "编辑数据" : "二手书籍入库"; ?></h1>
-        <a href="?page=books" class="page-title-action">返回列表</a>
-        <hr class="wp-header-end">
-    
-        <form method="post" enctype="multipart/form-data">
-            <?php if ($id) { ?>
-                <input type="hidden" name="id" value="<?= $data->id; ?>" />
-            <?php } ?>
-    
-            <table class="form-table" role="presentation">
-                <tbody>
-                    <tr>
-                        <th scope="row"><label for="title">书名</label></th>
-                        <td><input name="name" type="text" id="name" value="<?= $id ? $data->name : ""; ?>" class="regular-text"></td>
-                    </tr>
-                    <tr>
-                        <th scope="row">
-                            <label for="image">封面</label>
-                        </th>
-                        <td>
-                            <input name="image" type="file"  accept="image/*" class="regular-text"/>
-                            <br>
-                            <?php 
-                                if($id){
-                                    if($data->image){
-                                        echo "<img src =\"$data->image\" width=\"100\"/>";
-                                    }else{
-                                        echo "<img src =\"/uploads/book_covers/{$id}.png\" width=\"100\"/>";
-                                    }
-                                    
-                                }
-                            ?>
-                        </td>
-                    </tr>
-    
-                    <tr id="file_list">
-                        <th scope="row">
-                            <label for="status">相册</label>
-                        </th>
-                        <td>
-                            <input name="images[]" type="file" class="regular-text" accept="image/*" multiple="multiple" />
-                        </td>
-                    </tr>
+    <form method="post" enctype="multipart/form-data">
+        <?php if ($id) { ?>
+            <input type="hidden" name="id" value="<?= $data->id; ?>" />
+        <?php } ?>
 
-                    <tr>
-                        <th scope="row">
-                            <label for="pubdate">重量</label>
-                        </th>
-                        <td>
-                            <input name="pubdate" type="text" id="pubdate" value="<?= $id ? $data->pubdate : ""; ?>" class="regular-text"> g
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <p class="submit"><input type="submit" name="submit" id="submit" class="button button-primary" value="保存更改"></p>
-        </form>
-    </div>
+        <table class="form-table" role="presentation">
+            <tbody>
+                <tr>
+                    <th scope="row"><label for="title">书名</label></th>
+                    <td><input name="name" type="text" id="name" value="<?= $id ? $data->name : ""; ?>" class="regular-text"></td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <label for="image">封面</label>
+                    </th>
+                    <td>
+                        <input name="image" type="file"  accept="image/*" class="regular-text"/>
+                        <br>
+                        <?php 
+                            if($id){
+                                if($data->image){
+                                    echo "<img src =\"$data->image\" width=\"100\"/>";
+                                }else{
+                                    echo "<img src =\"/uploads/book_covers/{$id}.png\" width=\"100\"/>";
+                                }
+                                
+                            }
+                        ?>
+                    </td>
+                </tr>
+
+                <tr id="file_list">
+                    <th scope="row">
+                        <label for="status">相册</label>
+                    </th>
+                    <td>
+                        <input name="images[]" type="file" class="regular-text" accept="image/*" multiple="multiple" />
+                    </td>
+                </tr>
+
+                <tr>
+                    <th scope="row">
+                        <label for="pubdate">重量</label>
+                    </th>
+                    <td>
+                        <input name="pubdate" type="text" id="pubdate" value="<?= $id ? $data->pubdate : "240"; ?>" class="regular-text"> g
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p class="submit"><input type="submit" name="submit" id="submit" class="button button-primary" value="保存更改"></p>
+    </form>
 <?php 
 
 }
@@ -337,6 +299,10 @@ function used_books_item_card($book){
 function used_books_show_card($id){
     global $wpdb;
     $book = $wpdb->get_row("SELECT * FROM `{$wpdb->prefix}used_books` WHERE `id` = $id");
+    if(!$book){
+        echo "<p>未查询到此书籍，请稍后重试！</p>";
+        return false;
+    }
 ?>
     <div class="buyBox" style="display: flex;">
         <div>

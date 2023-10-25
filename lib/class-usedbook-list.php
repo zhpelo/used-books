@@ -74,7 +74,7 @@ class UsedBook_List_Table extends WP_List_Table {
 
 
     public function column_name( $book ) {
-        return "<a href=\"?page=chapters&book_id={$book['id']}\">{$book['name']}</a>";
+        return "<a href=\"/used-books/{$book['id']}/\">{$book['name']}</a>";
 	}
 
     public function column_image( $book ) {

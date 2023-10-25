@@ -10,16 +10,22 @@ get_header();?>
 
 <style>
     .used-books-list {
-        display: grid;
-        grid-template-columns: repeat(6, 16%);
-        justify-items: center;
-        justify-content: space-between;
-        margin: 0 -10px;
+        display:flex;flex-wrap: wrap;text-align: center;
+    }
+    .item {
+        width: 150px;
+        padding: 10px;
     }
     .item img{
-        width: 100%;
-        box-shadow: 3px 3px 20px #adadad;
-        border-radius: 5px;
+        width: 130px;
+    }
+    .item h3{
+        font-size: 14px;
+        line-height: 28px;
+        height: 28px;
+        overflow:hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
     }
 </style>
 <div class="ct-container-full" data-content="narrow" data-vertical-spacing="top:bottom">
