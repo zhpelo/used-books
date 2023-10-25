@@ -310,8 +310,8 @@ function used_books_show_card($id){
         </div>
         <div style="padding: 20px;">
             <h1><?=$book->name;?></h1>
-            <p>价格：<span style="color: red;font-size: xxx-large;font-style: italic;">9.9</span> 元</p>
-            <p>运费：<b style="color: red;">包邮</b><span style="font-size: small;font-style: italic;">（新疆，西藏，内蒙古地区除外）</span></p>
+            <p>价格：<span style="color: red;font-size: xxx-large;font-style: italic;">9.9</span> 元
+            <br>运费：<b style="color: red;">包邮</b><span style="font-size: small;font-style: italic;">（新疆，西藏，内蒙古地区除外）</span></p>
             <div class="wp-block-buttons is-layout-flex">
                 <a class="wp-block-button__link wp-element-button"  href="/used-orders/?action=buy&id=2">
                     立即购买
