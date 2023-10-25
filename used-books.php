@@ -305,10 +305,10 @@ function used_books_show_card($id){
     }
 ?>
     <div class="buyBox" style="display: flex;">
-        <div>
+        <div style="flex-shrink:0;">
             <img src="<?=$book->image;?>" width="200">
         </div>
-        <div class="info" style="padding: 20px;">
+        <div style="padding: 20px;">
             <h1><?=$book->name;?></h1>
             <p>价格：<span style="color: red;font-size: xxx-large;font-style: italic;">9.9</span> 元</p>
             <p>运费：<b style="color: red;">包邮</b><span style="font-size: small;font-style: italic;">（新疆，西藏，内蒙古地区除外）</span></p>
