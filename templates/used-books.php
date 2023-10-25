@@ -18,6 +18,7 @@ get_header();?>
     }
     .item img{
         width: 130px;
+        aspect-ratio: 3/4;
     }
     .item h3{
         font-size: 14px;
