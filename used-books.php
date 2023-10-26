@@ -60,12 +60,21 @@ function used_books_add_menu()
 {
     add_menu_page(
         '二手书籍管理', // 菜单页面的标题
-        '二手书', // 菜单页面的菜单文本
+        '二手书籍', // 菜单页面的菜单文本
         'manage_options', // 用户需要具备的权限
         'used_books', // 菜单页面的 slug
         'used_books_page', // 菜单页面的回调函数
         'dashicons-media-document',
         6
+    );
+
+    add_submenu_page(
+        'used_books', // 父菜单标识
+        '二手书籍订单管理', // 页面标题
+        '订单管理', // 菜单标题
+        'read', // 用户权限
+        'used_orders', // 子菜单标识
+        'used_orders_page' // 页面回调函数
     );
 
 }
@@ -310,10 +319,10 @@ function used_books_show_card($id){
         </div>
         <div style="padding: 20px;">
             <h1><?=$book->name;?></h1>
-            <p>价格：<span style="color: red;font-size: xxx-large;font-style: italic;">9.9</span> 元
-            <br>运费：<b style="color: red;">包邮</b><span style="font-size: small;font-style: italic;">（新疆，西藏，内蒙古地区除外）</span></p>
+            <p>价格：<span style="color: red;font-size: xxx-large;font-style: italic;">3.9</span> 元
+            <br>运费：<b style="color: red;">包邮</b><span style="font-size: small;font-style: italic;">（新疆，西藏，内蒙古地区不发货）</span></p>
             <div class="wp-block-buttons is-layout-flex">
-                <a class="wp-block-button__link wp-element-button"  href="/used-orders/?action=buy&id=2">
+                <a class="wp-block-button__link wp-element-button"  href="/used-orders/?action=buy&id=<?=$book->id;?>">
                     立即购买
                 </a>
             </div>
@@ -347,7 +356,7 @@ function used_books_qrcode_pay($order_id)
 		"return_url" => home_url()."/epay/return/",
 		"out_trade_no" => md5($order_id).'-'.$order_id,
 		"name" => "购买二手书$order_id",
-		"money" => '9.9',
+		"money" => '3.9',
 		"sign_type" => "MD5"
 	);
 	$payurl= "http://7-pay.cn/submit.php?pid=".CS_PAY_PID."&type={$arr['type']}&notify_url={$arr['notify_url']}&return_url={$arr['return_url']}&out_trade_no={$arr['out_trade_no']}&name={$arr['name']}&money={$arr['money']}&sign_type={$arr['sign_type']}&sign=".cs_get_sign($arr,CS_PAY_KEY);
@@ -390,4 +399,25 @@ function used_books_process_order_post() {
             echo "<p>ERROR：订单提交失败</p>";
         }
     }
+}
+
+
+function used_orders_page(){
+?>
+    <div class="wrap">
+        <h1 class="wp-heading-inline">订单管理</h1>
+        <a href="?page=used_books&action=create" class="page-title-action">录入书籍</a>
+        <a href="?page=used_books" class="page-title-action">返回列表</a>
+        <style>
+            .column-images{
+                width: 500px;
+            }
+        </style>
+        <?php
+           $list_table = new UsedOrders_List_Table();
+           $list_table->prepare_items();
+           $list_table->display();
+        ?>
+    </div>
+<?php
 }
