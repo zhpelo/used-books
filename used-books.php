@@ -281,8 +281,7 @@ add_filter('page_template', 'used_books_page_template');
 
 function used_books_list_card(){
     global $wpdb;
-    $results = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}used_books");
-
+    $results = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}used_books WHERE  `out_date` IS NULL ORDER BY id DESC  LIMIT 100");
     echo '<div class="used-books-list">';
     if ($results) {
         foreach ($results as $row) {
