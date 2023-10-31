@@ -43,14 +43,14 @@ get_header();?>
     }
     .buyBox .gallery{
         flex-shrink:0;
-        width: 40%;
+        width: 35%;
         display: flex;
         justify-content: center;
     }
 
     .buyBox .summary{
-        width: 60%;
-        padding: 20px;
+        width: 65%;
+        padding: 20px 24px;
     }
 
     .buyBox .summary ul{

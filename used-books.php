@@ -364,8 +364,8 @@ function used_books_show_card($book){
             </div>
         </div>
     </div>
-    <div class="gallery" style="margin-top: 2rem;">
-    <img src="<?=$book->image;?>"/>
+    <div class="gallery-list" style="margin-top: 2rem;">
+        <img src="<?=$book->image;?>"/>
         <?php
            foreach(explode(";",$book->images) as $image){
                 echo  "<img src=\"$image\"/>";
