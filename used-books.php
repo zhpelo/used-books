@@ -304,26 +304,79 @@ function used_books_item_card($book){
 <?php
 }
 
-function used_books_show_card($id){
-    global $wpdb;
-    $book = $wpdb->get_row("SELECT * FROM `{$wpdb->prefix}used_books` WHERE `id` = $id");
-    if(!$book){
-        echo "<p>未查询到此书籍，请稍后重试！</p>";
-        return false;
-    }
+function used_books_show_card($book){
 ?>
-    <div class="buyBox" style="display: flex;">
-        <div style="flex-shrink:0;">
-            <img src="<?=$book->image;?>" width="200">
+    <style>
+
+        .buyBox{
+            display: flex;
+            flex-wrap: wrap; 
+        }
+        .buyBox .gallery{
+            flex-shrink:0;
+            width: 40%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .buyBox .summary{
+            width: 60%;
+            padding: 20px;
+        }
+
+        .buyBox .summary .title{
+            font-size: 24px;
+        }
+
+        .buyBox .summary .buttons{
+            display: flex;
+            justify-content: center;
+        }
+        @media (max-width: 690px){
+            .buyBox .gallery,.buyBox .summary{
+                width: 100%;
+            }
+        }
+    </style>
+    <div class="buyBox">
+        <div class="gallery">
+            <img src="<?=$book->image;?>">
         </div>
-        <div style="padding: 20px;">
-            <h1><?=$book->name;?></h1>
-            <p>价格：<span style="color: red;font-size: xxx-large;font-style: italic;">3.9</span> 元
-            <br>运费：<b style="color: red;">包邮</b><span style="font-size: small;font-style: italic;">（新疆，西藏，内蒙古地区不发货）</span></p>
-            <div class="wp-block-buttons is-layout-flex">
-                <a class="wp-block-button__link wp-element-button"  href="/used-orders/?action=buy&id=<?=$book->id;?>">
-                    立即购买
-                </a>
+        <div class="summary">
+            <h1 class="title"><?=$book->name;?></h1>
+            <ul>
+                <li>
+                    <b>价&nbsp;&nbsp;&nbsp;&nbsp;格</b>：<span style="color: red;font-size: xxx-large;font-style: italic;">3.9</span> 元
+                </li>
+                <li>
+                <b>运&nbsp;&nbsp;&nbsp;&nbsp;费</b>：包邮
+                </li>
+                <li>
+                <b>重&nbsp;&nbsp;&nbsp;&nbsp;量</b>：0.35kg
+                </li>
+                <li>
+                <b>限&nbsp;&nbsp;&nbsp;&nbsp;制</b>：新疆，西藏，内蒙古地区不发货
+                </li>
+                <li>
+                <b>发货地</b>：浙江省义乌市
+                </li>
+                <li>
+                <b>承&nbsp;&nbsp;&nbsp;&nbsp;诺</b>：由 <a href="/used-books/">文硕阁</a> 发货, 并提供售后服务。下单后 24 小时内发货！
+                </li>
+                
+            </ul>
+
+            <div class="wp-block-buttons is-layout-flex wp-block-buttons-is-layout-flex">
+                <div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="/used-orders/?action=buy&id=<?=$book->id;?>" style="background-color: red;">
+                
+                <svg t="1698762558636" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="7094" width="20" height="20"><path d="M866.24 291.2a32 32 0 0 0-32-30.4H704v-7.36a207.36 207.36 0 0 0-54.72-136 189.44 189.44 0 0 0-139.2-51.84 185.92 185.92 0 0 0-139.84 52.48A197.76 197.76 0 0 0 320 249.28v11.52H189.44a32 32 0 0 0-32 30.4L128 924.8a32 32 0 0 0 8.96 23.68A32 32 0 0 0 160 960h704a32 32 0 0 0 23.04-9.92 32 32 0 0 0 8.96-25.28zM384 248.32a131.52 131.52 0 0 1 32-86.08 124.8 124.8 0 0 1 93.44-32A120.64 120.64 0 0 1 640 253.44v7.36h-256zM193.6 896l26.56-569.6H320v92.8h64v-92.8h256v92.8h64v-92.8h99.84L832 896z" p-id="7095" fill="#ffffff"></path></svg>
+                
+                &nbsp;&nbsp;立即购买</a></div>
+                <div class="wp-block-button">
+                    <a class="wp-block-button__link wp-element-button" style="background-color: white; color:black" href="/contact-us/">
+                    <svg t="1698762234706" class="icon" viewBox="0 0 1242 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1582" width="20" height="20"><path d="M276.743688 31.082747C186.540651 64.041687 104.812048 125.270062 54.361358 208.677492 8.606987 283.867611-11.893734 347.488616 10.231619 433.531224 32.369608 529.051077 99.026894 610.711245 178.527378 664.192112 163.562333 708.268342 158.599331 746.176838 153.241979 793.661668 213.726318 769.97044 236.727901 752.630478 286.778456 725.702122 347.169339 745.28871 428.587568 754.515188 491.973145 752.448047 424.470537 427.943582 695.89773 324.409217 893.269788 329.56092 865.623248 208.677497 796.986424 118.654356 700.75188 64.648162 573.142548-8.2271 414.082616-19.21199 276.743688 31.082747ZM360.220315 263.951829C351.85832 304.755434 297.895893 324.439586 266.378822 297.080385 229.885788 270.971544 240.087502 206.129635 283.035409 193.107378 325.063457 176.651653 372.868378 219.964023 360.220315 263.951829L360.220315 263.951829ZM664.517052 251.807704C664.874055 298.842577 603.140014 328.155857 568.407425 296.214323 532.389618 270.084732 542.599953 206.406934 584.893106 193.173093 622.711803 178.087803 667.444489 210.451949 664.517052 251.807704L664.517052 251.807704Z" fill="#30C730" p-id="1583"></path><path d="M1068.665237 401.293428C950.759528 344.063296 796.155145 340.080632 670.146638 401.29343 586.791846 441.785774 530.910016 508.798605 511.412699 601.876298 495.367042 670.357375 511.943042 746.322966 547.738475 806.091779 601.106738 895.778572 671.0012 944.89232 771.252416 963.294669 843.857258 978.25156 934.764331 970.486807 1001.696707 949.896938 1043.898815 966.595443 1090.349546 1002.543127 1131.305913 1022.439486 1120.797806 986.53707 1109.586126 950.777341 1097.45152 915.382722 1143.316357 882.161971 1185.133568 840.933997 1210.28018 789.025525 1247.669004 716.759062 1249.90803 627.269511 1216.947591 552.929899 1186.342062 482.635866 1136.546388 434.242191 1068.665237 401.293428ZM796.071025 576.285972C784.874375 612.115777 733.365318 622.928991 708.616704 595.576855 681.240669 570.392793 691.88864 517.566914 727.758071 506.350864 767.651159 489.305001 813.548508 535.875601 796.071025 576.285972L796.071025 576.285972ZM1047.444295 581.227295C1034.168173 613.595632 987.769102 621.04848 964.867247 596.014907 953.772668 585.573654 951.073986 569.750547 946.628332 555.739558 952.560216 530.537944 968.652355 504.29175 996.052013 503.156339 1033.972617 497.73815 1067.238973 545.816053 1047.444295 581.227295L1047.444295 581.227295Z" fill="#30C730" p-id="1584"></path></svg>
+                    &nbsp;&nbsp;联系客服</a>
+                </div>
             </div>
         </div>
     </div>

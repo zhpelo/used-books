@@ -4,7 +4,17 @@ Template Name: Used Books Template
 */
 $id =  get_query_var('id');
 if($id){
+
+    global $wpdb;
+    $book = $wpdb->get_row("SELECT * FROM `{$wpdb->prefix}used_books` WHERE `id` = $id");
+    if(!$book){
+        status_header( 404 );
+        return get_template_part(404);
+    }
     //详细内容的 seo 内容
+    add_filter('pre_get_document_title', function () use ($book, $post) {
+        return "$book->name &#8211; $post->post_title &#8211; 文硕阁";
+    });
 }
 get_header();?>
 
@@ -34,7 +44,7 @@ get_header();?>
         <div class="hero-section">
             <?php 
             if($id){
-                used_books_show_card($id);
+                used_books_show_card($book);
             }else{
                 used_books_list_card();
             }
