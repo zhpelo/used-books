@@ -42,15 +42,18 @@ get_header();?>
         flex-wrap: wrap; 
     }
     .buyBox .gallery{
-        flex-shrink:0;
         width: 35%;
-        display: flex;
-        justify-content: center;
     }
+
+    .buyBox .gallery img{
+        max-width: 100%;
+        height: auto;
+    }
+
 
     .buyBox .summary{
         width: 65%;
-        padding: 20px 24px;
+        padding-left: 24px;
     }
 
     .buyBox .summary ul{
@@ -66,6 +69,9 @@ get_header();?>
         justify-content: center;
     }
     @media (max-width: 690px){
+        .buyBox .summary{
+            padding: 20px 0 0 0;
+        }
         .buyBox .gallery,.buyBox .summary{
             width: 100%;
         }
@@ -73,6 +79,7 @@ get_header();?>
         .used-books-list .item {
             width: 50%;
         }
+
     }
 </style>
 <div class="ct-container-full" data-content="narrow" data-vertical-spacing="top:bottom">

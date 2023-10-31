@@ -338,13 +338,13 @@ function used_books_show_card($book){
                     <b>重&nbsp;&nbsp;&nbsp;&nbsp;量</b>：<?=$book->weight;?> g
                 </li>
                 <li>
-                    <b>限&nbsp;&nbsp;&nbsp;&nbsp;制</b>：新疆，西藏，内蒙古地区不发货
+                    <b>限&nbsp;&nbsp;&nbsp;&nbsp;制</b>：新疆，西藏，内蒙古地区不发货！
                 </li>
                 <li>
                     <b>发货地</b>：浙江省义乌市
                 </li>
                 <li>
-                    <b>承&nbsp;&nbsp;&nbsp;&nbsp;诺</b>：由 <a href="/used-books/">文硕阁</a> 发货, 并提供售后服务。
+                    <b>承&nbsp;&nbsp;&nbsp;&nbsp;诺</b>：由<a href="/used-books/">文硕阁</a>发货，并提供售后服务。
                 </li>
                 <li>
                     <b>时&nbsp;&nbsp;&nbsp;&nbsp;效</b>：下单后 12 小时内发货！
