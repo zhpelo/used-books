@@ -54,6 +54,10 @@ function usedbooks_initializen() {
 
 }
 
+function custom_rewrite_rule() {
+    add_rewrite_rule('^used-books/([0-9]+)/?$', 'index.php?pagename=used-books&id=$matches[1]', 'top');
+}
+add_action('init', 'custom_rewrite_rule');
 
 //  注册后台管理模块  
 function used_books_add_menu()
@@ -281,7 +285,13 @@ add_filter('page_template', 'used_books_page_template');
 
 function used_books_list_card(){
     global $wpdb;
-    $results = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}used_books WHERE  `out_date` IS NULL ORDER BY id DESC  LIMIT 100");
+   
+    $per_page = 30;
+    $paged = (get_query_var('paged')) ? absint(get_query_var('paged')) : 1;
+    $start_number = ($paged - 1) * $per_page;
+    $items_count = $wpdb->get_var("SELECT count(*)  FROM {$wpdb->prefix}used_books WHERE `out_date` IS NULL");
+    $total_page = ceil($items_count / $per_page);
+    $results = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}used_books WHERE `out_date` IS NULL ORDER BY id DESC LIMIT {$start_number},{$per_page}");
     echo '<div class="used-books-list">';
     if ($results) {
         foreach ($results as $row) {
@@ -291,13 +301,18 @@ function used_books_list_card(){
         echo 'No used books found.';
     }
     echo '</div>';
+    echo paginate_links(array(
+        'current' => $paged,
+        'total' => $total_page
+    ));
 }
 
 function used_books_item_card($book){
 ?>
     <div class="item">
         <a href="/used-books/<?=$book->id;?>/">
-            <img src="<?=$book->image;?>" alt="<?=$book->name;?>" title="<?=$book->name;?>">
+        
+            <img src="<?= str_replace("https://www.wenshuoge.com","https://wenshuoge.oss-cn-shanghai.aliyuncs.com",$book->image) ;?>?x-oss-process=style/w300h400" alt="<?=$book->name;?>" title="<?=$book->name;?>">
             <h3><?=$book->name;?></h3>
         </a>
     </div>
@@ -306,66 +321,36 @@ function used_books_item_card($book){
 
 function used_books_show_card($book){
 ?>
-    <style>
-
-        .buyBox{
-            display: flex;
-            flex-wrap: wrap; 
-        }
-        .buyBox .gallery{
-            flex-shrink:0;
-            width: 40%;
-            display: flex;
-            justify-content: center;
-        }
-
-        .buyBox .summary{
-            width: 60%;
-            padding: 20px;
-        }
-
-        .buyBox .summary .title{
-            font-size: 24px;
-        }
-
-        .buyBox .summary .buttons{
-            display: flex;
-            justify-content: center;
-        }
-        @media (max-width: 690px){
-            .buyBox .gallery,.buyBox .summary{
-                width: 100%;
-            }
-        }
-    </style>
     <div class="buyBox">
         <div class="gallery">
-            <img src="<?=$book->image;?>">
+            <img src="<?=str_replace("https://www.wenshuoge.com","https://wenshuoge.oss-cn-shanghai.aliyuncs.com",$book->image);?>?x-oss-process=style/w600h800">
         </div>
         <div class="summary">
             <h1 class="title"><?=$book->name;?></h1>
             <ul>
                 <li>
-                    <b>价&nbsp;&nbsp;&nbsp;&nbsp;格</b>：<span style="color: red;font-size: xxx-large;font-style: italic;">3.9</span> 元
+                    <b>价&nbsp;&nbsp;&nbsp;&nbsp;格</b>：<span style="color: red;font-size: 35px;
+    line-height: 35px;font-style: italic;">3.9</span> 元
                 </li>
                 <li>
-                <b>运&nbsp;&nbsp;&nbsp;&nbsp;费</b>：包邮
+                    <b>运&nbsp;&nbsp;&nbsp;&nbsp;费</b>：包邮
                 </li>
                 <li>
-                <b>重&nbsp;&nbsp;&nbsp;&nbsp;量</b>：0.35kg
+                    <b>重&nbsp;&nbsp;&nbsp;&nbsp;量</b>：0.35kg
                 </li>
                 <li>
-                <b>限&nbsp;&nbsp;&nbsp;&nbsp;制</b>：新疆，西藏，内蒙古地区不发货
+                    <b>限&nbsp;&nbsp;&nbsp;&nbsp;制</b>：新疆，西藏，内蒙古地区不发货
                 </li>
                 <li>
-                <b>发货地</b>：浙江省义乌市
+                    <b>发货地</b>：浙江省义乌市
                 </li>
                 <li>
-                <b>承&nbsp;&nbsp;&nbsp;&nbsp;诺</b>：由 <a href="/used-books/">文硕阁</a> 发货, 并提供售后服务。下单后 24 小时内发货！
+                    <b>承&nbsp;&nbsp;&nbsp;&nbsp;诺</b>：由 <a href="/used-books/">文硕阁</a> 发货, 并提供售后服务。
                 </li>
-                
+                <li>
+                    <b>时&nbsp;&nbsp;&nbsp;&nbsp;效</b>：下单后 12 小时内发货！
+                </li>
             </ul>
-
             <div class="wp-block-buttons is-layout-flex wp-block-buttons-is-layout-flex">
                 <div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="/used-orders/?action=buy&id=<?=$book->id;?>" style="background-color: red;">
                 
@@ -391,12 +376,6 @@ function used_books_show_card($book){
     </div>
 <?php
 }
-
-
-function custom_rewrite_rule() {
-    add_rewrite_rule('^used-books/([^/]+)/?', 'index.php?pagename=used-books&id=$matches[1]', 'top');
-}
-add_action('init', 'custom_rewrite_rule');
 
 
 function used_books_qrcode_pay($order_id)

@@ -2,9 +2,8 @@
 /*
 Template Name: Used Books Template
 */
-$id =  get_query_var('id');
+$id = (int)get_query_var('id');
 if($id){
-
     global $wpdb;
     $book = $wpdb->get_row("SELECT * FROM `{$wpdb->prefix}used_books` WHERE `id` = $id");
     if(!$book){
@@ -27,8 +26,7 @@ get_header();?>
         padding: 10px;
     }
     .item img{
-        width: 130px;
-        aspect-ratio: 3/4;
+        width: 100%;
     }
     .item h3{
         font-size: 14px;
@@ -38,10 +36,48 @@ get_header();?>
         white-space: nowrap;
         text-overflow: ellipsis;
     }
+    .buyBox{
+        display: flex;
+        flex-wrap: wrap; 
+    }
+    .buyBox .gallery{
+        flex-shrink:0;
+        width: 40%;
+        display: flex;
+        justify-content: center;
+    }
+
+    .buyBox .summary{
+        width: 60%;
+        padding: 20px;
+    }
+
+    .buyBox .summary .title{
+        font-size: 24px;
+    }
+
+    .buyBox .summary .buttons{
+        display: flex;
+        justify-content: center;
+    }
+    @media (max-width: 690px){
+        .buyBox .gallery,.buyBox .summary{
+            width: 100%;
+        }
+
+        .used-books-list .item {
+            width: 50%;
+        }
+    }
 </style>
 <div class="ct-container-full" data-content="narrow" data-vertical-spacing="top:bottom">
     <article class=" format-standard hentry category-uncategorized">
-        <div class="hero-section">
+        <div class="hero-section" data-type="type-1">
+            <header class="entry-header">
+                <h1 class="page-title" title="<?=$post->post_title;?>" itemprop="headline"><?=$post->post_title;?></h1>
+            </header>
+        </div>
+        <div class="entry-content">
             <?php 
             if($id){
                 used_books_show_card($book);
@@ -49,7 +85,7 @@ get_header();?>
                 used_books_list_card();
             }
              ?>
-        </div>
+		</div>
     </article>
 </div>
 <?php
