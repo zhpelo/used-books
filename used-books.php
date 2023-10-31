@@ -285,8 +285,7 @@ add_filter('page_template', 'used_books_page_template');
 
 function used_books_list_card(){
     global $wpdb;
-   
-    $per_page = 30;
+    $per_page = 20;
     $paged = (get_query_var('paged')) ? absint(get_query_var('paged')) : 1;
     $start_number = ($paged - 1) * $per_page;
     $items_count = $wpdb->get_var("SELECT count(*)  FROM {$wpdb->prefix}used_books WHERE `out_date` IS NULL");

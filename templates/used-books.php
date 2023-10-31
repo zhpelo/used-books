@@ -54,13 +54,13 @@ get_header();?>
     }
 
     .buyBox .summary ul{
-        padding: 0 15px;
+        padding-left: 16px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
     }
 
     .buyBox .summary .title{
         font-size: 24px;
     }
-
     .buyBox .summary .buttons{
         display: flex;
         justify-content: center;
