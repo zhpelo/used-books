@@ -22,7 +22,8 @@ get_header();?>
         display:flex;flex-wrap: wrap;text-align: center;
     }
     .item {
-        width: 150px;
+        width: 25%;
+        min-width: 150px;
         padding: 10px;
     }
     .item img{
@@ -50,6 +51,10 @@ get_header();?>
     .buyBox .summary{
         width: 60%;
         padding: 20px;
+    }
+
+    .buyBox .summary ul{
+        padding: 0 15px;
     }
 
     .buyBox .summary .title{

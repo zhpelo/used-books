@@ -176,7 +176,7 @@ function used_books_edit_page($id = null){
                         <label for="pubdate">重量</label>
                     </th>
                     <td>
-                        <input name="pubdate" type="text" id="pubdate" value="<?= $id ? $data->pubdate : "240"; ?>" class="regular-text"> g
+                        <input name="weight" type="number" id="weight" value="<?= $id ? $data->weight : "350"; ?>" class="regular-text"> g
                     </td>
                 </tr>
             </tbody>
@@ -336,7 +336,7 @@ function used_books_show_card($book){
                     <b>运&nbsp;&nbsp;&nbsp;&nbsp;费</b>：包邮
                 </li>
                 <li>
-                    <b>重&nbsp;&nbsp;&nbsp;&nbsp;量</b>：0.35kg
+                    <b>重&nbsp;&nbsp;&nbsp;&nbsp;量</b>：<?=$book->weight;?> g
                 </li>
                 <li>
                     <b>限&nbsp;&nbsp;&nbsp;&nbsp;制</b>：新疆，西藏，内蒙古地区不发货
