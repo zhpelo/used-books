@@ -462,6 +462,7 @@ function used_orders_page(){
                 $list_table = new UsedOrders_List_Table();
                 $list_table->prepare_items();
                 $list_table->display();
+                
             }
         ?>
     </div>

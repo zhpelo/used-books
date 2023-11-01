@@ -124,6 +124,20 @@ class UsedOrders_List_Table extends WP_List_Table {
         ]);
     }
 
+    public function extra_tablenav($which) {
+        if ($which === 'top') {
+            // 添加您的 subsubsub 内容
+            echo '<div class="subsubsub">';
+            echo '  <ul>';
+            echo '      <li class="all"><a href="?page=used_orders">全部</a> |</li>';
+            echo '      <li class="publish"><a href="?page=used_orders&status=0">待付款</a> |</li>';
+            echo '      <li class="publish"><a href="?page=used_orders&status=1">待发货</a> |</li>';
+            echo '      <li class="draft"><a href="?page=used_orders&status=2">已发货</a></li>';
+            echo '  </ul>';
+            echo '</div>';
+        }
+    }
+
     // 列表列设置
     public function get_columns() {
         $columns = [
@@ -140,6 +154,9 @@ class UsedOrders_List_Table extends WP_List_Table {
     }
     public function prepare_items() {
         global $wpdb;
+
+        $order_status = isset($_REQUEST['status']) ? sanitize_text_field($_REQUEST['status']) : '';
+
         // 获取分页参数
         $per_page = isset($_GET['per_page']) ? absint($_GET['per_page']) : 20;
         // 查询数据库获取数据（包括分页限制）
@@ -148,7 +165,11 @@ class UsedOrders_List_Table extends WP_List_Table {
         $sortable = $this->get_sortable_columns();
         $this->_column_headers = [$columns, [], $sortable];
         // 设置总行数
-        $total_items = $wpdb->get_var("SELECT COUNT(*) FROM `{$wpdb->prefix}used_orders`");
+        $WHERE = "";
+        if( $order_status){
+            $WHERE =" WHERE `status` = '{$order_status}'";
+        }
+        $total_items = $wpdb->get_var("SELECT COUNT(*) FROM `{$wpdb->prefix}used_orders` $WHERE");
     
         // 设置分页参数
         $this->set_pagination_args([
@@ -169,6 +190,11 @@ class UsedOrders_List_Table extends WP_List_Table {
     private function get_data() {
         global $wpdb;
         // 获取分页参数
+        $order_status = isset($_REQUEST['status']) ? sanitize_text_field($_REQUEST['status']) : '';
+        $WHERE = "";
+        if( $order_status){
+            $WHERE =" WHERE `status` = '{$order_status}'";
+        }
         $paged = isset($_GET['paged']) ? absint($_GET['paged']) : 1;
         $per_page = isset($_GET['per_page']) ? absint($_GET['per_page']) : 20;
 
@@ -176,7 +202,7 @@ class UsedOrders_List_Table extends WP_List_Table {
         $offset = ($paged - 1) * $per_page;
 
         // 查询数据库获取数据（添加 LIMIT 和 OFFSET 子句）
-        $results = $wpdb->get_results("SELECT * FROM `{$wpdb->prefix}used_orders` ORDER BY id DESC LIMIT $per_page OFFSET $offset", ARRAY_A);
+        $results = $wpdb->get_results("SELECT * FROM `{$wpdb->prefix}used_orders` $WHERE ORDER BY id DESC LIMIT $per_page OFFSET $offset", ARRAY_A);
 
         return $results;
     }
