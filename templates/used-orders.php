@@ -1,10 +1,11 @@
 <?php
 /*
-Template Name: Used Books Template
+Template Name: Used Books Oreber Template
 */
 
 get_header();
 $action = isset($_GET['action'])? $_GET['action'] : "";
+
 ?>
 <style>
     .error{
@@ -74,7 +75,9 @@ $action = isset($_GET['action'])? $_GET['action'] : "";
                 <?php
             } elseif($action == 'qrcode_pay'){
                 used_books_qrcode_pay($_GET['order_id']);
-            } else { ?>
+            }elseif($action == 'details'){
+                echo "系统正在处理...";
+            }else{ ?>
             
             <h2>订单管理</h2>
 
@@ -85,6 +88,7 @@ $action = isset($_GET['action'])? $_GET['action'] : "";
                             <th>订单ID</th>
                             <th>购买商品</th>
                             <th>收货信息</th>
+                            <th>订单状态</th>
                             <th>操作</th>
                         </tr>
                     </thead>
@@ -100,7 +104,14 @@ $action = isset($_GET['action'])? $_GET['action'] : "";
                             echo '<td>' . $row->id . '</td>';
                             echo '<td><a href="/used-books/'.$row->used_book_id.'/"><img src="' . $row->image . '" width="100" /></a></td>';
                             echo "<td>$row->buyer_name  $row->buyer_phone<br>$row->buyer_address</td>";
-                            echo '<td><a href="?action=qrcode_pay&order_id='.$row->id.'">去付款</a></td>';
+
+                            echo "<td>".used_books_order_status_display($row->status)."</td>";
+
+                            if($row->status == 0){
+                                echo '<td><a href="?action=qrcode_pay&order_id='.$row->id.'">去付款</a></td>';
+                            }else{
+                                echo '<td><a href="?action=details&order_id='.$row->id.'">详细信息</a></td>';
+                            }
                             echo '</tr>';
                         }
                         ?>

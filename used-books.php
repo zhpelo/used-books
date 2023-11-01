@@ -92,11 +92,13 @@ function used_books_page()
         <h1 class="wp-heading-inline">二手书籍</h1>
         <a href="?page=used_books&action=create" class="page-title-action">录入书籍</a>
         <a href="?page=used_books" class="page-title-action">返回列表</a>
+        <hr class="wp-header-end">
         <style>
             .column-images{
                 width: 500px;
             }
         </style>
+        
         <?php
             switch ($action) {
                 case 'create':
@@ -437,17 +439,47 @@ function used_orders_page(){
     <div class="wrap">
         <h1 class="wp-heading-inline">订单管理</h1>
         <a href="?page=used_books&action=create" class="page-title-action">录入书籍</a>
-        <a href="?page=used_books" class="page-title-action">返回列表</a>
+        <a href="?page=used_orders" class="page-title-action">返回列表</a>
+
+        <hr class="wp-header-end">
         <style>
             .column-images{
                 width: 500px;
             }
         </style>
         <?php
-           $list_table = new UsedOrders_List_Table();
-           $list_table->prepare_items();
-           $list_table->display();
+            $action = isset($_GET['action'])? $_GET['action'] : "";
+            if($action == "set_paid"){
+                if(used_books_order_set_paid((int)$_GET['id'])){
+                    echo '<div id="message" class="updated notice"><p>订单状态修改完成！</p></div>';
+                }else{
+                    echo '<div id="message" class="notice notice-error"><p><strong>出现错误！</strong></p></div>';
+                }
+                
+            }else{
+                $list_table = new UsedOrders_List_Table();
+                $list_table->prepare_items();
+                $list_table->display();
+            }
         ?>
     </div>
 <?php
+}
+
+
+
+function used_books_order_set_paid($order_id){
+    global $wpdb;
+
+    return $wpdb->update(
+        $wpdb->prefix . 'used_orders',
+        array(
+            'paid_date'       => current_time('mysql'),
+            'status'   => 1,
+        ),
+        array(
+            'id' => $order_id
+        )
+    );
+
 }

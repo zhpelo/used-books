@@ -134,8 +134,10 @@ class UsedOrders_List_Table extends WP_List_Table {
             'buyer_phone'    => '手机号',
             'buyer_address'    => '收件地址',
             'used_book_id'   => '购买商品',
-            'create_date'  => '下单时间',
-            'paid_date'  => '付款时间',
+            'date'      => '时间',
+            'status'    => "订单状态",
+
+            'operate'  => '操作',
         ];
         return $columns;
     }
@@ -191,6 +193,12 @@ class UsedOrders_List_Table extends WP_List_Table {
 	}
 
 
+    public function column_date( $book ) {
+        $html = $book['create_date']."</br>";
+        $html .= $book['paid_date']."</br>";
+        return $html;
+	}
+
     /**
      * 添加勾选框列
      *
@@ -204,8 +212,46 @@ class UsedOrders_List_Table extends WP_List_Table {
         );
     }
 
+    public function column_operate( $book ) {
+        $html = '';
+        switch ($book['status']) {
+            case 0:
+                $html .= "[<a href=\"?page=used_orders&action=set_paid&id={$book['id']}\">已收款</a>]";
+                break;
+            case 1:
+                $html .= "[<a href=\"?page=used_orders&action=delivery&id={$book['id']}\">去发货</a>]";
+                break;
+        }
+		return $html;
+	}
+
+    public function column_status( $book ) {
+        return used_books_order_status_display($book['status']);
+	}
  
 	public function no_items() {
 		_e( 'No Used Ordes found.' );
 	}
+}
+
+
+function used_books_order_status_display($status){
+    switch ($status) {
+        case 0:
+            $html = "未付款"; //
+            break;
+        case 1:
+            $html = "已付款"; //
+            break;
+        case 2:
+            $html = "已发货"; //
+            break;
+        case 3:
+            $html = "已收货"; //
+            break;
+        case 4:
+            $html = "已完成"; //
+            break;
+    }
+    return $html;
 }
