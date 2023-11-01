@@ -456,7 +456,9 @@ function used_orders_page(){
                     echo '<div id="message" class="notice notice-error"><p><strong>出现错误！</strong></p></div>';
                 }
                 
-            }else{
+            } elseif($action == "delivery"){
+                used_books_delivery_form();
+            } else{
                 $list_table = new UsedOrders_List_Table();
                 $list_table->prepare_items();
                 $list_table->display();
@@ -482,4 +484,54 @@ function used_books_order_set_paid($order_id){
         )
     );
 
+}
+
+function used_books_delivery_form() {
+    global $wpdb;
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+        $result = $wpdb->update(
+            $wpdb->prefix . 'used_orders',
+            array(
+                'express_company'  => $_POST['express_company'],
+                'express_number'   => $_POST['express_number'],
+                'status'   => 2
+            ),
+            array(
+                'id' => (int)$_GET['id']
+            ),
+        );
+
+        if($result){
+            echo '<div id="message" class="updated notice"><p>订单 发货 完成！</p></div>';
+        }else{
+            echo '<div id="message" class="notice notice-error"><p><strong>出现错误！</strong></p></div>';
+        }
+    
+    }else{
+?>
+<form method="post" enctype="multipart/form-data">
+    <table class="form-table" role="presentation">
+        <tbody>
+            <tr>
+                <th scope="row"><label for="title">快递公司</label></th>
+                <td><input name="express_company" type="text" id="express_company" value="韵达快递" class="regular-text"></td>
+            </tr>
+            <tr>
+                <th scope="row"><label for="title">快递单号</label></th>
+                <td><input name="express_number" type="text" id="express_number" value="" class="regular-text"></td>
+            </tr>
+        </tbody>
+    </table>
+    <p class="submit"><input type="submit" name="submit" id="submit" class="button button-primary" value="立即发货"></p>
+</form>
+<?php
+    }
+}
+
+
+function used_books_get_order($order_id){
+    global $wpdb;
+    return $wpdb->get_row(" SELECT * FROM `{$wpdb->prefix}used_orders` WHERE `id` = '{$order_id}' LIMIT 1");
 }

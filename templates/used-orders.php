@@ -17,7 +17,21 @@ $action = isset($_GET['action'])? $_GET['action'] : "";
 </style>
 <div class="ct-container-full" data-content="narrow" data-vertical-spacing="top:bottom">
     <article class=" format-standard hentry category-uncategorized">
-        <div class="hero-section">
+
+        <div class="hero-section" data-type="type-1">
+            <header class="entry-header" style="display: flex;">
+                <h1 class="page-title" title="<?=$post->post_title;?>" itemprop="headline"><?=$post->post_title;?></h1>
+                
+                <span style="line-height: 30px;margin: 0;padding: 8px 20px;">[<a href="/contact-us/">联系客服</a>]</span>
+
+                <?php if($action){?>
+                    <span style="line-height: 30px;margin: 0;padding: 8px 0">[<a href="/used-orders/">返回订单列表</a>]</span>
+                <?php } ?>
+                
+            </header>
+        </div>
+
+        <div class="entry-content">
             <?php
             if($action == 'buy'){
                 global $wpdb;
@@ -76,10 +90,25 @@ $action = isset($_GET['action'])? $_GET['action'] : "";
             } elseif($action == 'qrcode_pay'){
                 used_books_qrcode_pay($_GET['order_id']);
             }elseif($action == 'details'){
-                echo "系统正在处理...";
+
+                $order = used_books_get_order( $_GET['order_id']);
+
+                if(!$order->express_number){
+                    echo "<p><b>等待发货...</b></p>";
+                }else{
+
+                ?>
+                    <p>快递公司：<?=$order->express_company;?></p>
+                    <p>快递单号：<?=$order->express_number;?></p>
+                    <div style="padding: 20px;background-color: white;">
+                        <img src="http://barcode.cnaidc.com/html/cnaidc.php?filetype=PNG&dpi=300&scale=2&rotation=0&font_family=Arial.ttf&font_size=14&text=YT7423993935762&thickness=40&start=A&code=BCGcode128" alt="微信扫一扫查看物流信息">
+                    </div>
+                    <p>使用微信扫一扫上面的条形码，可以查看订阅物流信息</p>
+
+                <?php
+                }
             }else{ ?>
             
-            <h2>订单管理</h2>
 
             <div style="background-color: #fff; ">
                 <table>

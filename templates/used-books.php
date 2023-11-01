@@ -85,8 +85,13 @@ get_header();?>
 <div class="ct-container-full" data-content="narrow" data-vertical-spacing="top:bottom">
     <article class=" format-standard hentry category-uncategorized">
         <div class="hero-section" data-type="type-1">
-            <header class="entry-header">
+            <header class="entry-header" style="display: flex;">
                 <h1 class="page-title" title="<?=$post->post_title;?>" itemprop="headline"><?=$post->post_title;?></h1>
+
+                <?php if(is_user_logged_in()){ ?>
+                    <span style="line-height: 30px;margin: 0;padding: 8px 20px;">[<a href="/used-orders/">我的订单</a>]</span>
+                <?php } ?>
+                
             </header>
         </div>
         <div class="entry-content">
