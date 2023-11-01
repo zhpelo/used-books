@@ -101,7 +101,7 @@ $action = isset($_GET['action'])? $_GET['action'] : "";
                     <p>快递公司：<?=$order->express_company;?></p>
                     <p>快递单号：<?=$order->express_number;?></p>
                     <div style="padding: 20px;background-color: white;">
-                        <img src="http://barcode.cnaidc.com/html/cnaidc.php?filetype=PNG&dpi=300&scale=2&rotation=0&font_family=Arial.ttf&font_size=14&text=YT7423993935762&thickness=40&start=A&code=BCGcode128" alt="微信扫一扫查看物流信息">
+                        <img src="https://free-barcode.com/cn/barcode.asp?bc1=<?=$order->express_number;?>&bc2=10&bc3=3.5&bc4=1.2&bc5=1&bc6=1&bc7=Arial&bc8=15&bc9=1" alt="微信扫一扫查看物流信息">
                     </div>
                     <p>使用微信扫一扫上面的条形码，可以查看订阅物流信息</p>
 
