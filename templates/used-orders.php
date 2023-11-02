@@ -37,9 +37,11 @@ $action = isset($_GET['action'])? $_GET['action'] : "";
                 global $wpdb;
                 $last_order = $wpdb->get_row("SELECT * FROM `{$wpdb->prefix}used_orders` WHERE `user_id` = '".get_current_user_id()."' ORDER BY `id` DESC LIMIT 1");
 
-                $default_buyer_name = isset($_POST['buyer_name']) ?$_POST['buyer_name']: $last_order->buyer_name;
-                $default_buyer_phone = isset($_POST['buyer_phone']) ?$_POST['buyer_phone']: $last_order->buyer_phone;
-                $default_buyer_address = isset($_POST['buyer_address']) ?$_POST['buyer_address']: $last_order->buyer_address;
+                $default_buyer_name = isset($_POST['buyer_name']) ? $_POST['buyer_name']: ($last_order ? $last_order->buyer_name : '');
+                
+                $default_buyer_phone = isset($_POST['buyer_phone']) ? $_POST['buyer_phone'] : ($last_order ? $last_order->buyer_phone : '');
+
+                $default_buyer_address = isset($_POST['buyer_address']) ? $_POST['buyer_address']: ($last_order ? $last_order->buyer_address : '');
 
                 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     used_books_process_order_post();
