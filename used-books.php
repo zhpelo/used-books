@@ -331,7 +331,7 @@ function used_books_show_card($book){
             <ul>
                 <li>
                     <b>价&nbsp;&nbsp;&nbsp;&nbsp;格</b>：<span style="color: red;font-size: 35px;
-    line-height: 35px;font-style: italic;">3.9</span> 元
+    line-height: 35px;font-style: italic;"><?=used_books_calculate_price();?></span> 元
                 </li>
                 <li>
                     <b>运&nbsp;&nbsp;&nbsp;&nbsp;费</b>：包邮
@@ -388,7 +388,7 @@ function used_books_qrcode_pay($order_id)
 		"return_url" => home_url()."/epay/return/",
 		"out_trade_no" => md5($order_id).'-'.$order_id,
 		"name" => "购买二手书$order_id",
-		"money" => '3.9',
+		"money" => used_books_calculate_price(),
 		"sign_type" => "MD5"
 	);
 	$payurl= "http://7-pay.cn/submit.php?pid=".CS_PAY_PID."&type={$arr['type']}&notify_url={$arr['notify_url']}&return_url={$arr['return_url']}&out_trade_no={$arr['out_trade_no']}&name={$arr['name']}&money={$arr['money']}&sign_type={$arr['sign_type']}&sign=".cs_get_sign($arr,CS_PAY_KEY);
@@ -535,4 +535,17 @@ function used_books_delivery_form() {
 function used_books_get_order($order_id){
     global $wpdb;
     return $wpdb->get_row(" SELECT * FROM `{$wpdb->prefix}used_orders` WHERE `id` = '{$order_id}' LIMIT 1");
+}
+
+function used_books_calculate_price(){
+    $price = 3.9;
+    if(is_user_logged_in()){
+        global $wpdb;
+        $isBuy = $wpdb->get_row(" SELECT * FROM `{$wpdb->prefix}used_orders` WHERE `user_id` = '".get_current_user_id()."' AND `status` > '0' LIMIT 1");
+        if($isBuy){
+            $price = 9.9;
+        }
+    }
+
+    return $price;
 }
