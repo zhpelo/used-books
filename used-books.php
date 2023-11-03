@@ -217,7 +217,8 @@ function used_books_add(){
     global $wpdb;
     $data = [];
     $data['name'] = trim($_POST['name']);
-
+    $data['weight'] = trim($_POST['weight']);
+    
     $upload_dir = wp_upload_dir();
     $target_dir = $upload_dir['basedir'].'/used_books'.$upload_dir['subdir'] . '/';
     $url_dir = $upload_dir['baseurl'].'/used_books'.$upload_dir['subdir'] . '/';
@@ -240,6 +241,7 @@ function used_books_add(){
         }
     }
     $data['in_date'] = current_time('mysql');
+    
     
     $wpdb->insert("{$wpdb->prefix}used_books", $data);
     return $wpdb->insert_id;
