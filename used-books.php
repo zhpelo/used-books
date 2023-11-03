@@ -386,8 +386,8 @@ function used_books_qrcode_pay($order_id)
 		"type" => "alipay",
 		"notify_url" => home_url()."/epay/notify/",
 		"return_url" => home_url()."/epay/return/",
-		"out_trade_no" => md5($order_id).'-'.$order_id,
-		"name" => "购买二手书$order_id",
+		"out_trade_no" => 'wsg-'.$order_id,
+		"name" => "【文硕阁】购买二手书籍 $order_id",
 		"money" => used_books_calculate_price(),
 		"sign_type" => "MD5"
 	);
@@ -395,8 +395,6 @@ function used_books_qrcode_pay($order_id)
 
     echo "<script type=\"text/javascript\">window.location.href=\"$payurl\";</script>";
 }
-
-
 
 function used_books_process_order_post() {
     global $wpdb;
@@ -421,8 +419,9 @@ function used_books_process_order_post() {
             'buyer_name'    => $_POST['buyer_name'],
             'buyer_phone'   => $_POST['buyer_phone'],
             'buyer_address' => $_POST['buyer_address'],
-            'price' => used_books_calculate_price(),
-            'buyer_notes' =>  $_POST['buyer_notes'],
+            'price'         => used_books_calculate_price(),
+            'buyer_notes'   => $_POST['buyer_notes'],
+            'status'        => 1,
             'create_date'   => current_time('mysql'),
         ];
         $wpdb->insert($wpdb->prefix.'used_orders', $data);

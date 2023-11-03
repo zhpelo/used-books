@@ -272,20 +272,27 @@ class UsedOrders_List_Table extends WP_List_Table {
 
 function used_books_order_status_display($status){
     switch ($status) {
-        case 0:
-            $html = "未付款"; //
-            break;
         case 1:
-            $html = "已付款"; //
+            $html = "<span style=\"
+            color: gray;\
+            \">未付款</span>";
             break;
         case 2:
-            $html = "已发货"; //
+            $html = "<span style=\"color: red;\">已付款</span>";
             break;
         case 3:
-            $html = "已收货"; //
+            $html = "<span style=\"color: green;\">已发货</span>";
             break;
         case 4:
+            $html = "已收货"; //
+            break;
+        case 5:
             $html = "已完成"; //
+            break;
+        default :
+            $html = "<span style=\"
+            color: gray;
+            \">未知状态</span>";
             break;
     }
     return $html;
