@@ -421,6 +421,8 @@ function used_books_process_order_post() {
             'buyer_name'    => $_POST['buyer_name'],
             'buyer_phone'   => $_POST['buyer_phone'],
             'buyer_address' => $_POST['buyer_address'],
+            'price' => used_books_calculate_price(),
+            'buyer_notes' =>  $_POST['buyer_notes'],
             'create_date'   => current_time('mysql'),
         ];
         $wpdb->insert($wpdb->prefix.'used_orders', $data);
@@ -548,4 +550,9 @@ function used_books_calculate_price(){
     }
 
     return $price;
+}
+
+function used_books_get_book($book_id){
+    global $wpdb;
+    return $wpdb->get_row("SELECT * FROM `{$wpdb->prefix}used_books` WHERE `id` = '{$book_id}' LIMIT 1");
 }

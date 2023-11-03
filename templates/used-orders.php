@@ -14,6 +14,9 @@ $action = isset($_GET['action'])? $_GET['action'] : "";
         color: #fff;
         margin-bottom: 1rem;
     }
+    .order_item{
+        padding: 20px;
+    }
     .order_item .buyinfo .buyer_address{
         font-size: 12px;
         white-space: nowrap;
@@ -23,6 +26,9 @@ $action = isset($_GET['action'])? $_GET['action'] : "";
     .order_item .buyinfo .buyer_phone{
         color: #797979;
         margin-left: 10px;
+    }
+    .buyinfo{
+        width: 60%;
     }
 </style>
 <div class="ct-container-full" data-content="narrow" data-vertical-spacing="top:bottom">
@@ -126,28 +132,30 @@ $action = isset($_GET['action'])? $_GET['action'] : "";
 
                 <?php
                     // 获取数据并循环显示每一行
-                    $data = $wpdb->get_results("SELECT {$wpdb->prefix}used_orders.*,{$wpdb->prefix}used_books.image
-                    FROM {$wpdb->prefix}used_orders
-                    JOIN {$wpdb->prefix}used_books ON {$wpdb->prefix}used_orders.used_book_id = {$wpdb->prefix}used_books.id
-                    WHERE {$wpdb->prefix}used_orders.user_id = '".get_current_user_id()."' ORDER BY `id` DESC LIMIT 50");
-                    foreach ($data as $row) { ?>
+                    $data = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}used_orders  WHERE user_id = '".get_current_user_id()."' ORDER BY `id` DESC LIMIT 50");
+
+
+
+                    foreach ($data as $row) { 
+                        $used_book = used_books_get_book($row->used_book_id);
+                        ?>
 
                     <div class="order_item" style="display: flex;">
 
                         <div class="bookinfo">
-                        <a href="/used-books/<?=$row->used_book_id;?>/"><img src="<?= str_replace("https://www.wenshuoge.com","https://wenshuoge.oss-cn-shanghai.aliyuncs.com",$row->image) ;?>?x-oss-process=style/w300h400" width="100" /></a>
+                        <a href="/used-books/<?=$row->used_book_id;?>/"><img src="<?= str_replace("https://www.wenshuoge.com","https://wenshuoge.oss-cn-shanghai.aliyuncs.com",$used_book->image) ;?>?x-oss-process=style/w300h400" width="100" /></a>
                         </div>
                         <div class="buyinfo">
                             <div style="display: flex;    justify-content: space-between;">
                                 <div class="buyer_name">
-                                    <?=$row->buyer_name;?>
+                                    <?=$used_book->name;?>
                                 </div>
                                 <div class="buyer_phone">
                                     <?=$row->buyer_phone;?>
                                 </div>
                             </div>
-                            <div class="buyer_address">
-                                <?=$row->buyer_address;?>
+                            <div class="price">
+                                实付款：<?=$row->price;?>
                             </div>
                             <div>
                             <?=used_books_order_status_display($row->status);?>
