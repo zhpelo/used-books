@@ -14,9 +14,19 @@ $action = isset($_GET['action'])? $_GET['action'] : "";
         color: #fff;
         margin-bottom: 1rem;
     }
+    .order_item .buyinfo .buyer_address{
+        font-size: 12px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis; 
+    }
+    .order_item .buyinfo .buyer_phone{
+        color: #797979;
+        margin-left: 10px;
+    }
 </style>
 <div class="ct-container-full" data-content="narrow" data-vertical-spacing="top:bottom">
-    <article class=" format-standard hentry category-uncategorized">
+    <article class="format-standard hentry">
 
         <div class="hero-section" data-type="type-1">
             <header class="entry-header" style="display: flex;">
@@ -38,7 +48,7 @@ $action = isset($_GET['action'])? $_GET['action'] : "";
                 $last_order = $wpdb->get_row("SELECT * FROM `{$wpdb->prefix}used_orders` WHERE `user_id` = '".get_current_user_id()."' ORDER BY `id` DESC LIMIT 1");
 
                 $default_buyer_name = isset($_POST['buyer_name']) ? $_POST['buyer_name']: ($last_order ? $last_order->buyer_name : '');
-                
+
                 $default_buyer_phone = isset($_POST['buyer_phone']) ? $_POST['buyer_phone'] : ($last_order ? $last_order->buyer_phone : '');
 
                 $default_buyer_address = isset($_POST['buyer_address']) ? $_POST['buyer_address']: ($last_order ? $last_order->buyer_address : '');
@@ -113,41 +123,48 @@ $action = isset($_GET['action'])? $_GET['action'] : "";
             
 
             <div style="background-color: #fff; ">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>订单ID</th>
-                            <th>购买商品</th>
-                            <th>收货信息</th>
-                            <th>订单状态</th>
-                            <th>操作</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        // 获取数据并循环显示每一行
-                        $data = $wpdb->get_results("SELECT {$wpdb->prefix}used_orders.*,{$wpdb->prefix}used_books.image
-                        FROM {$wpdb->prefix}used_orders
-                        JOIN {$wpdb->prefix}used_books ON {$wpdb->prefix}used_orders.used_book_id = {$wpdb->prefix}used_books.id
-                        WHERE {$wpdb->prefix}used_orders.user_id = '".get_current_user_id()."' ORDER BY `id` DESC LIMIT 50");
-                        foreach ($data as $row) {
-                            echo '<tr>';
-                            echo '<td>' . $row->id . '</td>';
-                            echo '<td><a href="/used-books/'.$row->used_book_id.'/"><img src="' . $row->image . '" width="100" /></a></td>';
-                            echo "<td>$row->buyer_name  $row->buyer_phone<br>$row->buyer_address</td>";
 
-                            echo "<td>".used_books_order_status_display($row->status)."</td>";
+                <?php
+                    // 获取数据并循环显示每一行
+                    $data = $wpdb->get_results("SELECT {$wpdb->prefix}used_orders.*,{$wpdb->prefix}used_books.image
+                    FROM {$wpdb->prefix}used_orders
+                    JOIN {$wpdb->prefix}used_books ON {$wpdb->prefix}used_orders.used_book_id = {$wpdb->prefix}used_books.id
+                    WHERE {$wpdb->prefix}used_orders.user_id = '".get_current_user_id()."' ORDER BY `id` DESC LIMIT 50");
+                    foreach ($data as $row) { ?>
 
+                    <div class="order_item" style="display: flex;">
+
+                        <div class="bookinfo">
+                        <a href="/used-books/<?=$row->used_book_id;?>/"><img src="<?= str_replace("https://www.wenshuoge.com","https://wenshuoge.oss-cn-shanghai.aliyuncs.com",$row->image) ;?>?x-oss-process=style/w300h400" width="100" /></a>
+                        </div>
+                        <div class="buyinfo">
+                            <div style="display: flex;    justify-content: space-between;">
+                                <div class="buyer_name">
+                                    <?=$row->buyer_name;?>
+                                </div>
+                                <div class="buyer_phone">
+                                    <?=$row->buyer_phone;?>
+                                </div>
+                            </div>
+                            <div class="buyer_address">
+                                <?=$row->buyer_address;?>
+                            </div>
+                            <div>
+                            <?=used_books_order_status_display($row->status);?>
+                            </div>
+                        </div>
+                        <div class="status">
+                            <?php
                             if($row->status == 0){
-                                echo '<td><a href="?action=qrcode_pay&order_id='.$row->id.'">去付款</a></td>';
+                                echo '<a href="?action=qrcode_pay&order_id='.$row->id.'">去付款</a>';
                             }else{
-                                echo '<td><a href="?action=details&order_id='.$row->id.'">详细信息</a></td>';
+                                echo '<a href="?action=details&order_id='.$row->id.'">详细信息</a>';
                             }
-                            echo '</tr>';
-                        }
-                        ?>
-                    </tbody>
-                </table>
+                            ?>
+                        </div>
+                    </div>
+                    
+                    <?php } ?>
             </div>
             
             <?php
@@ -160,6 +177,3 @@ $action = isset($_GET['action'])? $_GET['action'] : "";
 </div>
 <?php
 get_footer();
-
-
-
