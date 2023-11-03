@@ -14,6 +14,13 @@ $action = isset($_GET['action'])? $_GET['action'] : "";
         color: #fff;
         margin-bottom: 1rem;
     }
+
+    .container-full{
+        max-width: 750px;
+        margin: 0 auto;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
     .order_item{
         padding: 20px;
     }
@@ -45,7 +52,7 @@ $action = isset($_GET['action'])? $_GET['action'] : "";
     }
     @media (max-width: 690px){
         .order_item{
-            padding: 5px;
+            padding: 10px;
         }
         .order_item .l img{
             width: 80px;;
@@ -55,9 +62,7 @@ $action = isset($_GET['action'])? $_GET['action'] : "";
         }
     }
 </style>
-<div class="ct-container-full" data-content="narrow" data-vertical-spacing="top:bottom">
-    <article class="format-standard hentry">
-
+<div class="container-full" data-content="narrow" data-vertical-spacing="top:bottom">
         <div class="hero-section" data-type="type-1">
             <header class="entry-header" style="display: flex;">
                 <h1 class="page-title" title="<?=$post->post_title;?>" itemprop="headline"><?=$post->post_title;?></h1>
@@ -183,8 +188,6 @@ $action = isset($_GET['action'])? $_GET['action'] : "";
                 <div class="wp-block-button">
                     <a class="wp-block-button__link wp-element-button" <?=$status==3?'style="background-color: crimson;"':"";?> href="?status=3">待收货</a>
                 </div>
-
-
             </div>
 
 
@@ -242,7 +245,6 @@ $action = isset($_GET['action'])? $_GET['action'] : "";
             
             ?>
         </div>
-    </article>
 </div>
 <?php
 get_footer();
