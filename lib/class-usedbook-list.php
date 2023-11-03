@@ -130,9 +130,12 @@ class UsedOrders_List_Table extends WP_List_Table {
             echo '<div class="subsubsub">';
             echo '  <ul>';
             echo '      <li class="all"><a href="?page=used_orders">全部</a> |</li>';
-            echo '      <li class="publish"><a href="?page=used_orders&status=0">待付款</a> |</li>';
-            echo '      <li class="publish"><a href="?page=used_orders&status=1">待发货</a> |</li>';
-            echo '      <li class="draft"><a href="?page=used_orders&status=2">已发货</a></li>';
+            echo '      <li class="publish"><a href="?page=used_orders&status=1">待付款</a> |</li>';
+            echo '      <li class="publish"><a href="?page=used_orders&status=2">待发货</a> |</li>';
+            echo '      <li class="draft"><a href="?page=used_orders&status=3">已发货</a></li>';
+            echo '      <li class="draft"><a href="?page=used_orders&status=4">已完成</a></li>';
+            echo '      <li class="draft"><a href="?page=used_orders&status=5">退款中</a></li>';
+            echo '      <li class="draft"><a href="?page=used_orders&status=5">已退款</a></li>';
             echo '  </ul>';
             echo '</div>';
         }
