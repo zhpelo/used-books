@@ -480,8 +480,8 @@ function used_books_order_set_paid($order_id){
     return $wpdb->update(
         $wpdb->prefix . 'used_orders',
         array(
-            'paid_date'       => current_time('mysql'),
-            'status'   => 1,
+            'paid_date' => current_time('mysql'),
+            'status'    => 2,
         ),
         array(
             'id' => $order_id
