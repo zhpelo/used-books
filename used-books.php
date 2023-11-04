@@ -543,7 +543,7 @@ function used_books_calculate_price(){
     $price = 3.9;
     if(is_user_logged_in()){
         global $wpdb;
-        $isBuy = $wpdb->get_row(" SELECT * FROM `{$wpdb->prefix}used_orders` WHERE `user_id` = '".get_current_user_id()."' AND `status` > '0' LIMIT 1");
+        $isBuy = $wpdb->get_row(" SELECT * FROM `{$wpdb->prefix}used_orders` WHERE `user_id` = '".get_current_user_id()."' AND `status` > 1 LIMIT 1");
         if($isBuy){
             $price = 9.9;
         }
