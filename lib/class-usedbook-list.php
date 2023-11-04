@@ -129,12 +129,12 @@ class UsedOrders_List_Table extends WP_List_Table {
             // 添加您的 subsubsub 内容
             echo '<div class="subsubsub">';
             echo '  <ul>';
-            echo '      <li class="all"><a href="?page=used_orders">全部</a>｜</li>';
-            echo '      <li class="publish"><a href="?page=used_orders&status=1">待付款</a>｜</li>';
-            echo '      <li class="publish"><a href="?page=used_orders&status=2">待发货</a>｜</li>';
-            echo '      <li class="draft"><a href="?page=used_orders&status=3">已发货</a> ｜</li>';
-            echo '      <li class="draft"><a href="?page=used_orders&status=4">已完成</a>｜</li>';
-            echo '      <li class="draft"><a href="?page=used_orders&status=5">退款中</a>｜</li>';
+            echo '      <li class="all"><a href="?page=used_orders">全部</a> |</li>';
+            echo '      <li class="publish"><a href="?page=used_orders&status=1">待付款</a> |</li>';
+            echo '      <li class="publish"><a href="?page=used_orders&status=2">待发货</a> |</li>';
+            echo '      <li class="draft"><a href="?page=used_orders&status=3">已发货</a> |</li>';
+            echo '      <li class="draft"><a href="?page=used_orders&status=4">已完成</a> |</li>';
+            echo '      <li class="draft"><a href="?page=used_orders&status=5">退款中</a> |</li>';
             echo '      <li class="draft"><a href="?page=used_orders&status=5">已退款</a></li>';
             echo '  </ul>';
             echo '</div>';
@@ -253,11 +253,14 @@ class UsedOrders_List_Table extends WP_List_Table {
     public function column_operate( $book ) {
         $html = '';
         switch ($book['status']) {
-            case 0:
+            case 1:
                 $html .= "[<a href=\"?page=used_orders&action=set_paid&id={$book['id']}\">已收款</a>]";
                 break;
-            case 1:
+            case 2:
                 $html .= "[<a href=\"?page=used_orders&action=delivery&id={$book['id']}\">去发货</a>]";
+                break;
+            case 3:
+                $html .= "[<a href=\"?page=used_orders&action=delivery&id={$book['id']}\">修改发货信息</a>]";
                 break;
         }
 		return $html;

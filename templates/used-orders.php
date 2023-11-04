@@ -131,7 +131,7 @@ $action = isset($_GET['action'])? $_GET['action'] : "";
                                     <label for="buyer_notes">备注</label>
                                 </th>
                                 <td>
-                                    <input name="buyer_notes" type="text" id="buyer_notes" value="" class="regular-text" required>
+                                    <input name="buyer_notes" type="text" id="buyer_notes" value="" class="regular-text">
                                 </td>
                             </tr>
                         </tbody>
