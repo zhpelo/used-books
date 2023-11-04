@@ -251,7 +251,7 @@ class UsedOrders_List_Table extends WP_List_Table {
     }
 
     public function column_operate( $book ) {
-        $html = '';
+        $html = "[<a href=\"?page=used_orders&action=delivery&id={$book['id']}\">订单详情</a>]</br>";
         switch ($book['status']) {
             case 1:
                 $html .= "[<a href=\"?page=used_orders&action=set_paid&id={$book['id']}\">已收款</a>]";
@@ -279,9 +279,7 @@ class UsedOrders_List_Table extends WP_List_Table {
 function used_books_order_status_display($status){
     switch ($status) {
         case 1:
-            $html = "<span style=\"
-            color: gray;\
-            \">未付款</span>";
+            $html = "<span style=\"color: gray;\">未付款</span>";
             break;
         case 2:
             $html = "<span style=\"color: red;\">已付款</span>";
@@ -290,15 +288,13 @@ function used_books_order_status_display($status){
             $html = "<span style=\"color: green;\">已发货</span>";
             break;
         case 4:
-            $html = "已收货"; //
+            $html = "已收货";
             break;
         case 5:
-            $html = "已完成"; //
+            $html = "已完成";
             break;
         default :
-            $html = "<span style=\"
-            color: gray;
-            \">未知状态</span>";
+            $html = "<span style=\"color: gray;\">未知状态</span>";
             break;
     }
     return $html;

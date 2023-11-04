@@ -154,21 +154,58 @@ $action = isset($_GET['action'])? $_GET['action'] : "";
             }elseif($action == 'details'){
 
                 $order = used_books_get_order( $_GET['order_id']);
-
-                if(!$order->express_number){
-                    echo "<p><b>等待发货...</b></p>";
-                }else{
-
+                $used_book = used_books_get_book($order->used_book_id);
                 ?>
-                    <p>快递公司：<?=$order->express_company;?></p>
-                    <p>快递单号：<?=$order->express_number;?></p>
-                    <div style="padding: 20px;background-color: white;">
-                        <img src="https://free-barcode.com/cn/barcode.asp?bc1=<?=$order->express_number;?>&bc2=10&bc3=3.5&bc4=1.2&bc5=1&bc6=1&bc7=Arial&bc8=15&bc9=1" alt="微信扫一扫查看物流信息">
-                    </div>
-                    <p>使用微信扫一扫上面的条形码，可以查看订阅物流信息</p>
+                <style>
+                    .order-info{
+                        background-color: #fff; padding: 20px;
+                    }
+                    .order-info p{
+                        margin-bottom: 0;
+                        line-height: 36px;
+                        font-size: 18px;
+                    }
+                </style>
+
+                <div class="order-info">
+
+                        <p>订单编号：<i>wsg-<?=$order->id;?></i></p>
+                        <p>购买商品：<a href="/used-books/<?=$order->used_book_id;?>/"><?=$used_book->name;?></a></p>
+                        <p>支付金额：¥ <?=$order->price;?></p>
+                        <p>支付方式：支付宝</p>
+                        
+                        <p>下单时间：<?=$order->create_date;?></p>
+                        
+                        
+                        <p>订单状态：<?=used_books_order_status_display($order->status);?></p>
+        
+                    <?php if($order->status >= 2){ ?>
+                        <p>付款时间：<?=$order->paid_date;?></p>
+                    <?php } ?>
+                    <?php if($order->status >= 3){ ?>
+                        <p>发货时间：<?=$order->delivery_date;?></p>
+                        <p>快递公司：<?=$order->express_company;?></li>
+                        <p>快递单号：<?=$order->express_number;?></li>
+                        <p style="margin-top: 40px;">
+                            <img src="https://free-barcode.com/cn/barcode.asp?bc1=<?=$order->express_number;?>&bc2=10&bc3=3.5&bc4=1.2&bc5=1&bc6=1&bc7=Arial&bc8=15&bc9=1" alt="微信扫一扫查看物流信息">
+                        </p>
+                        <p>用微信扫描上方条形码，可查看物流信息</p>
+
+                    <?php } ?>
+                        <br>
+                        <hr>
+
+                        <div style="margin-top: 100px;">
+                            <p style="text-align: center;"><b>对此订单有任何问题，请联系下方微信客服处理！</b></p>
+                            
+                            <p style="text-align: center; margin-top: 20px;">
+                                <img src="https://www.wenshuoge.com/wp-content/uploads/2022/11/%E4%BC%A0%E7%A1%95%E5%85%AC%E7%89%88%E4%B9%A6-%E5%BE%AE%E4%BF%A1%E7%A0%81-751x1024.png" width="300">
+                            </p>
+                        </div>
+            
+                </div>
 
                 <?php
-                }
             }else{ 
                 $status = isset($_GET['status']) ? (int)$_GET['status'] : 0;
                 ?>
