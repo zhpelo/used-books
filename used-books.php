@@ -465,7 +465,6 @@ function used_orders_page(){
                 $list_table = new UsedOrders_List_Table();
                 $list_table->prepare_items();
                 $list_table->display();
-                
             }
         ?>
     </div>
@@ -498,9 +497,10 @@ function used_books_delivery_form() {
         $result = $wpdb->update(
             $wpdb->prefix . 'used_orders',
             array(
-                'express_company'  => $_POST['express_company'],
-                'express_number'   => $_POST['express_number'],
-                'status'   => 2
+                'express_company'   => $_POST['express_company'],
+                'express_number'    => $_POST['express_number'],
+                'delivery_date'     => current_time('mysql'),
+                'status'            => 3,
             ),
             array(
                 'id' => (int)$_GET['id']
@@ -508,11 +508,10 @@ function used_books_delivery_form() {
         );
 
         if($result){
-            echo '<div id="message" class="updated notice"><p>订单 发货 完成！</p></div>';
+            echo '<div id="message" class="updated notice"><p>订单发货成功！</p></div>';
         }else{
             echo '<div id="message" class="notice notice-error"><p><strong>出现错误！</strong></p></div>';
         }
-    
     }else{
 ?>
 <form method="post" enctype="multipart/form-data">
