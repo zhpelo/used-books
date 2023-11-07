@@ -292,18 +292,29 @@ function used_books_list_card(){
     $per_page = 20;
     $paged = (get_query_var('paged')) ? absint(get_query_var('paged')) : 1;
     $start_number = ($paged - 1) * $per_page;
-    $items_count = $wpdb->get_var("SELECT count(*)  FROM {$wpdb->prefix}used_books WHERE `out_date` IS NULL");
+
+
+    $WHERE = "WHERE `out_date` IS NULL";
+
+    if(isset($_GET['q']) && $_GET['q'] != ''){
+        $keyword = esc_sql($_GET['q']);
+        $WHERE .= " AND `name` LIKE '%{$keyword}%' ";
+    }
+
+    $items_count = $wpdb->get_var("SELECT count(*)  FROM {$wpdb->prefix}used_books $WHERE");
     $total_page = ceil($items_count / $per_page);
-    $results = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}used_books WHERE `out_date` IS NULL ORDER BY id DESC LIMIT {$start_number},{$per_page}");
-    echo '<div class="used-books-list">';
+    $results = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}used_books $WHERE ORDER BY id DESC LIMIT {$start_number},{$per_page}");
+    
     if ($results) {
+        echo '<div class="used-books-list">';
         foreach ($results as $row) {
             used_books_item_card($row);
         }
+        echo '</div>';
     } else {
-        echo 'No used books found.';
+        echo '<p style="text-align: center;margin: 80px 0;">没有找到您需要的二手书籍！</p>';
     }
-    echo '</div>';
+    
     echo paginate_links(array(
         'current' => $paged,
         'total' => $total_page
