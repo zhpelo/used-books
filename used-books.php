@@ -76,7 +76,7 @@ function used_books_add_menu()
         'used_books', // 父菜单标识
         '二手书籍订单管理', // 页面标题
         '订单管理', // 菜单标题
-        'read', // 用户权限
+        'manage_options', // 用户权限
         'used_orders', // 子菜单标识
         'used_orders_page' // 页面回调函数
     );
