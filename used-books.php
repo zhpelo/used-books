@@ -398,7 +398,7 @@ function used_books_qrcode_pay($order_id)
 		"pid" => CS_PAY_PID,
 		"type" => "alipay",
 		"notify_url" => home_url()."/wsg/used-books-payment-callback/",
-		"return_url" => home_url()."/used-orders/",
+		"return_url" => home_url()."/wsg/used-books-payment-return/",
 		"out_trade_no" => 'wsg-'.$order_id,
 		"name" => "【文硕阁】购买二手书籍",
 		"money" => used_books_calculate_price(),
@@ -582,3 +582,14 @@ function used_books_payment_callback(){
     echo 'success';die;
 }
 
+
+function used_books_payment_return(){
+    sscanf($_GET["out_trade_no"], "wsg-%d", $order_id);
+    if(wsg_check_payment_callback()){
+
+        wp_redirect("/used-orders/?action=details&order_id=$order_id");
+       
+    }else{
+        wp_die("支付结果验证失败，请联系网站客服处理！");
+    }
+}
