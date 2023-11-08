@@ -398,7 +398,7 @@ function used_books_qrcode_pay($order_id)
 		"pid" => CS_PAY_PID,
 		"type" => "alipay",
 		"notify_url" => home_url()."/wsg/used-books-payment-callback/",
-		"return_url" => home_url()."/used-orders/?action=details&order_id=".$order_id,
+		"return_url" => home_url()."/used-orders/",
 		"out_trade_no" => 'wsg-'.$order_id,
 		"name" => "【文硕阁】购买二手书籍",
 		"money" => used_books_calculate_price(),
@@ -551,7 +551,7 @@ function used_books_get_order($order_id){
 }
 
 function used_books_calculate_price(){
-    $price = 3.9;
+    $price = 4.9;
     if(is_user_logged_in()){
         global $wpdb;
         $isBuy = $wpdb->get_row(" SELECT * FROM `{$wpdb->prefix}used_orders` WHERE `user_id` = '".get_current_user_id()."' AND `status` > 1 LIMIT 1");
