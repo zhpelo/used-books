@@ -397,10 +397,10 @@ function used_books_qrcode_pay($order_id)
 	$arr = array(
 		"pid" => CS_PAY_PID,
 		"type" => "alipay",
-		"notify_url" => home_url()."/epay/notify/",
-		"return_url" => home_url()."/epay/return/",
+		"notify_url" => home_url()."/wsg/used-books-payment-callback/",
+		"return_url" => home_url()."/used-orders/?action=details&order_id=".$order_id,
 		"out_trade_no" => 'wsg-'.$order_id,
-		"name" => "【文硕阁】购买二手书籍 $order_id",
+		"name" => "【文硕阁】购买二手书籍",
 		"money" => used_books_calculate_price(),
 		"sign_type" => "MD5"
 	);
@@ -567,3 +567,18 @@ function used_books_get_book($book_id){
     global $wpdb;
     return $wpdb->get_row("SELECT * FROM `{$wpdb->prefix}used_books` WHERE `id` = '{$book_id}' LIMIT 1");
 }
+
+
+function used_books_payment_callback(){
+    sscanf($_GET["out_trade_no"], "wsg-%d", $order_id);
+    if(wsg_check_payment_callback()){
+        $order = used_books_get_order($order_id);
+        if($order->status == 1){
+            if(!used_books_order_set_paid($order_id)){
+                echo 'error';die;
+            }
+        }
+    }
+    echo 'success';die;
+}
+
