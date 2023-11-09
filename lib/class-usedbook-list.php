@@ -4,6 +4,8 @@ if (!class_exists('WP_List_Table')) {
 }
 
 class UsedBook_List_Table extends WP_List_Table {
+
+    private $total_items;
     // 构造函数
     public function __construct() {
         parent::__construct([
@@ -19,76 +21,94 @@ class UsedBook_List_Table extends WP_List_Table {
             'cb'        => '<input type="checkbox" />',
             'id'        => 'ID',
             'name'     => '书名',
-            'image'    => '主图',
-            'images'    => '相册',
             'weight'    => '重量',
+            'sales'     => '销量',
             'in_date'   => '入库时间',
-            'out_date'  => '出库时间',
             'operate'   => '操作',
         ];
         return $columns;
     }
+
+    protected function get_sortable_columns()
+    {
+        $sortable_columns = array(
+                'id'  => array('id', false),
+                'weight' => array('weight', false),
+                'sales'   => array('sales', true)
+        );
+        return $sortable_columns;
+    }
+
     public function prepare_items() {
-        global $wpdb;
-        // 获取分页参数
-        $per_page = isset($_GET['per_page']) ? absint($_GET['per_page']) : 20;
-        // 查询数据库获取数据（包括分页限制）
-        $data = $this->get_data();
+        ?>
+        <style type="text/css">
+        .wp-list-table #id {
+            width: 60px;
+        }
+        .wp-list-table #name {
+            width: 50%;
+        }
+        </style>
+        <?php
+        $search = isset($_REQUEST['s']) ? sanitize_text_field($_REQUEST['s']) : '';
+        $orderby = isset($_REQUEST['orderby']) ? sanitize_text_field($_REQUEST['orderby']) : 'id';
+        $order = isset($_REQUEST['order']) ? sanitize_text_field($_REQUEST['order']) : 'desc';
+        $filter = isset($_REQUEST['filter']) ? sanitize_text_field($_REQUEST['filter']) : '';
+        $paged = isset($_REQUEST['paged']) ? absint($_REQUEST['paged']) : 1;
+        $per_page = isset($_REQUEST['per_page']) ? absint($_REQUEST['per_page']) : 20;
+        
+        $args = array(
+            'search' => $search,
+            'orderby' => $orderby,
+            'order' => $order,
+            'filter' => $filter,
+            'paged' => $paged,
+            'per_page' => $per_page,
+        );
+
         $columns  = $this->get_columns();
         $sortable = $this->get_sortable_columns();
         $this->_column_headers = [$columns, [], $sortable];
-        // 设置总行数
-        $total_items = $wpdb->get_var("SELECT COUNT(*) FROM `{$wpdb->prefix}used_books`");
-    
-        // 设置分页参数
+        $this->items = $this->get_data($args);
         $this->set_pagination_args([
-            'total_items' => $total_items,
-            'per_page'    => $per_page,
+            'total_items' =>  $this->total_items,
+            'per_page'    => 20,
         ]);
-        // 设置数据
-        $this->items = $data;
     }
 
-    
+    private function get_data($args) {
+        global $wpdb;
+        $offset = ($args['paged'] - 1) * $args['per_page'];
+        $table_name = $wpdb->prefix."used_books";
+        $where = "";
+        if (!empty($args['search'])) {
+            $where = " WHERE `name` LIKE '%{$args['search']}%'";
+        }
+        $orderby = " ORDER BY {$args['orderby']} {$args['order']}";
+        $limit = " LIMIT {$args['per_page']} OFFSET $offset";
+        $this->total_items = $wpdb->get_var("SELECT COUNT(*) FROM ". $table_name . $where);
+        $results = $wpdb->get_results("SELECT * FROM ".$table_name . $where . $orderby . $limit, ARRAY_A);
+        return $results;
+    }
+
+
     // 列表内容输出
     public function column_default($item, $column_name) {
         return $item[$column_name];
     }
 
-    // 获取数据（示例数据，你需要替换为实际数据获取方法）
-    private function get_data() {
-        global $wpdb;
-        // 获取分页参数
-        $paged = isset($_GET['paged']) ? absint($_GET['paged']) : 1;
-        $per_page = isset($_GET['per_page']) ? absint($_GET['per_page']) : 20;
-
-        // 计算 OFFSET 值
-        $offset = ($paged - 1) * $per_page;
-
-        // 查询数据库获取数据（添加 LIMIT 和 OFFSET 子句）
-        $results = $wpdb->get_results("SELECT * FROM `{$wpdb->prefix}used_books` ORDER BY id DESC LIMIT $per_page OFFSET $offset", ARRAY_A);
-
-        return $results;
-    }
-
-
-
     public function column_name( $book ) {
-        return "<a href=\"/used-books/{$book['id']}/\">{$book['name']}</a>";
-	}
 
-    public function column_image( $book ) {
-        return '<img src="'.$book['image'].'" width="80"/>';
-	}
-
-    public function column_images( $book ) {
-        $html = "";
-        foreach(explode(";",$book['images']) as $image){
-            $html .= "<img src=\"$image\" width=\"80\"/>";
+        $html = "<div style=\"width: 100%;overflow: hidden;\"><p><a href=\"/used-books/{$book['id']}/\">{$book['name']}</a></p>";
+        $html .= "<div style='display: inline-flex;'>";
+        $html .= '<img src="'.used_books_cdn_image($book['image'],"sm-square").'" width="80"/>';
+        foreach(array_filter( explode(";",$book['images']) ) as $image){
+            $html .= "<img src=\"".used_books_cdn_image($image,"sm-square") ."\" width=\"80\"/>";
         }
+        $html .= "</div></div>";
         return $html;
 	}
-    
+
     public function column_operate( $book ) {
         $html = "[<a href=\"?page=books&action=edit&id={$book['id']}\">下架</a>]"; 
 		return $html;
@@ -115,6 +135,8 @@ class UsedBook_List_Table extends WP_List_Table {
 
 
 class UsedOrders_List_Table extends WP_List_Table {
+
+    private $total_items;
     // 构造函数
     public function __construct() {
         parent::__construct([
@@ -124,22 +146,15 @@ class UsedOrders_List_Table extends WP_List_Table {
         ]);
     }
 
-    public function extra_tablenav($which) {
-        if ($which === 'top') {
-            // 添加您的 subsubsub 内容
-            echo '<div class="subsubsub">';
-            echo '  <ul>';
-            echo '      <li class="all"><a href="?page=used_orders">全部</a> |</li>';
-            echo '      <li class="publish"><a href="?page=used_orders&status=1">待付款</a> |</li>';
-            echo '      <li class="publish"><a href="?page=used_orders&status=2">待发货</a> |</li>';
-            echo '      <li class="draft"><a href="?page=used_orders&status=3">已发货</a> |</li>';
-            echo '      <li class="draft"><a href="?page=used_orders&status=4">已完成</a> |</li>';
-            echo '      <li class="draft"><a href="?page=used_orders&status=5">退款中</a> |</li>';
-            echo '      <li class="draft"><a href="?page=used_orders&status=5">已退款</a></li>';
-            echo '  </ul>';
-            echo '</div>';
-        }
-    }
+    /**
+	 * @return array
+	 */
+	protected function get_sortable_columns() {
+		return array(
+			'id'            => array( 'id', false),
+            'date'     => array( 'paid_date', false),
+		);
+	}
 
     // 列表列设置
     public function get_columns() {
@@ -156,67 +171,60 @@ class UsedOrders_List_Table extends WP_List_Table {
         return $columns;
     }
     public function prepare_items() {
-        global $wpdb;
+        ?>
+        <style type="text/css">
+        .wp-list-table #id {
+            width: 60px;
+        }
+        .wp-list-table #name {
+            width: 50%;
+        }
+        </style>
+        <?php
+        $search = isset($_REQUEST['s']) ? sanitize_text_field($_REQUEST['s']) : '';
+        $orderby = isset($_REQUEST['orderby']) ? sanitize_text_field($_REQUEST['orderby']) : 'id';
+        $order = isset($_REQUEST['order']) ? sanitize_text_field($_REQUEST['order']) : 'desc';
+        $filter = isset($_REQUEST['filter']) ? sanitize_text_field($_REQUEST['filter']) : '';
+        $paged = isset($_REQUEST['paged']) ? absint($_REQUEST['paged']) : 1;
+        $per_page = isset($_REQUEST['per_page']) ? absint($_REQUEST['per_page']) : 20;
+        
+        $args = array(
+            'search' => $search,
+            'orderby' => $orderby,
+            'order' => $order,
+            'filter' => $filter,
+            'paged' => $paged,
+            'per_page' => $per_page,
+        );
 
-        $order_status = isset($_REQUEST['status']) ? sanitize_text_field($_REQUEST['status']) : '';
-
-        // 获取分页参数
-        $per_page = isset($_GET['per_page']) ? absint($_GET['per_page']) : 20;
-        // 查询数据库获取数据（包括分页限制）
-        $data = $this->get_data();
         $columns  = $this->get_columns();
         $sortable = $this->get_sortable_columns();
         $this->_column_headers = [$columns, [], $sortable];
-        // 设置总行数
-        $WHERE = "";
-        if( $order_status){
-            $WHERE =" WHERE `status` = '{$order_status}'";
-        }
-        $total_items = $wpdb->get_var("SELECT COUNT(*) FROM `{$wpdb->prefix}used_orders` $WHERE");
-    
-        // 设置分页参数
+        $this->items = $this->get_data($args);
         $this->set_pagination_args([
-            'total_items' => $total_items,
-            'per_page'    => $per_page,
+            'total_items' =>  $this->total_items,
+            'per_page'    => 20,
         ]);
-        // 设置数据
-        $this->items = $data;
     }
-
-    
     // 列表内容输出
     public function column_default($item, $column_name) {
         return $item[$column_name];
     }
 
-    // 获取数据（示例数据，你需要替换为实际数据获取方法）
-    private function get_data() {
+    private function get_data($args) {
         global $wpdb;
-        // 获取分页参数
-        $order_status = isset($_REQUEST['status']) ? sanitize_text_field($_REQUEST['status']) : '';
-        $WHERE = "";
-        if( $order_status){
-            $WHERE =" WHERE `status` = '{$order_status}'";
+        $offset = ($args['paged'] - 1) * $args['per_page'];
+        $table_name = $wpdb->prefix."used_orders";
+        $where = "";
+        if (!empty($args['search'])) {
+            $where = " WHERE  (`buyer_name` LIKE '%{$args['search']}%' OR `buyer_phone` LIKE '%{$args['search']}%' OR `buyer_address` LIKE '%{$args['search']}%' OR `express_number` LIKE '%{$args['search']}%') ";
         }
-        $paged = isset($_GET['paged']) ? absint($_GET['paged']) : 1;
-        $per_page = isset($_GET['per_page']) ? absint($_GET['per_page']) : 20;
-
-        // 计算 OFFSET 值
-        $offset = ($paged - 1) * $per_page;
-
-        // 查询数据库获取数据（添加 LIMIT 和 OFFSET 子句）
-        $results = $wpdb->get_results("SELECT * FROM `{$wpdb->prefix}used_orders` $WHERE ORDER BY id DESC LIMIT $per_page OFFSET $offset", ARRAY_A);
-
+        $orderby = " ORDER BY {$args['orderby']} {$args['order']}";
+        $limit = " LIMIT {$args['per_page']} OFFSET $offset";
+        $this->total_items = $wpdb->get_var("SELECT COUNT(*) FROM ". $table_name . $where);
+        $results = $wpdb->get_results("SELECT * FROM ".$table_name . $where . $orderby . $limit, ARRAY_A);
         return $results;
     }
-
-    public function column_images( $book ) {
-        $html = "";
-        foreach(explode(";",$book['images']) as $image){
-            $html .= "<img src=\"$image\" width=\"80\"/>";
-        }
-        return $html;
-	}
 
     public function column_buyer( $book ) {
         $html = $book['buyer_name']."<br>";
@@ -228,7 +236,7 @@ class UsedOrders_List_Table extends WP_List_Table {
     public function column_buy_used_book( $book ) {
         global $wpdb;
         $used_book =  $wpdb->get_row("SELECT * FROM `{$wpdb->prefix}used_books` WHERE `id` = '{$book['used_book_id']}'");
-        return "<a href=\"/used-books/{$used_book->id}/\"><img src=\"$used_book->image\" width=\"80\"/></a>";
+        return "<a href=\"/used-books/{$used_book->id}/\"><img src=\"".used_books_cdn_image( $used_book->image ,"sm-square")."\" width=\"80\"/></a>";
 	}
 
     public function column_date( $book ) {

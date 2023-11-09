@@ -117,9 +117,12 @@ function used_books_page()
                     exit("开始下架书籍");
                     break;
                 default:
+                    echo '<form method="post">';
                     $list_table = new UsedBook_List_Table();
                     $list_table->prepare_items();
+                    $list_table->search_box('search', 'search_id');
                     $list_table->display();
+                    echo '</form>';
             }
         ?>
     </div>
@@ -474,8 +477,11 @@ function used_orders_page(){
                 used_books_delivery_form();
             } else{
                 $list_table = new UsedOrders_List_Table();
+                echo '<form method="post">';
                 $list_table->prepare_items();
+                $list_table->search_box('search', 'search_id');
                 $list_table->display();
+                echo '</form>';
             }
         ?>
     </div>
@@ -592,4 +598,8 @@ function used_books_payment_return(){
     }else{
         wp_die("支付结果验证失败，请联系网站客服处理！");
     }
+}
+
+function used_books_cdn_image($url,$spec = "w300h400"){
+    return str_replace("https://www.wenshuoge.com","https://wenshuoge.oss-cn-shanghai.aliyuncs.com",$url).'?x-oss-process=style/'.$spec;
 }
