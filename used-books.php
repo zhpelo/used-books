@@ -169,7 +169,7 @@ function used_books_edit_page($id = null){
 
                 <tr id="file_list">
                     <th scope="row">
-                        <label for="status">相册</label>
+                        <label for="images">相册</label>
                     </th>
                     <td>
                         <input name="images[]" type="file" class="regular-text" accept="image/*" multiple="multiple" />
@@ -178,12 +178,32 @@ function used_books_edit_page($id = null){
 
                 <tr>
                     <th scope="row">
-                        <label for="pubdate">重量</label>
+                        <label for="weight">重量</label>
                     </th>
                     <td>
                         <input name="weight" type="number" id="weight" value="<?= $id ? $data->weight : "350"; ?>" class="regular-text"> g
                     </td>
                 </tr>
+                <tr>
+                    <th scope="row">
+                        <label for="price">售价</label>
+                    </th>
+                    <td>
+                        <input name="price" type="text" id="price" value="<?= $id ? $data->price : "9.9"; ?>" class="regular-text"> 元
+                    </td>
+                </tr>
+
+                <tr>
+                    <th scope="row">
+                        <label for="text">Text</label>
+                    </th>
+                    <td>
+                    
+                        <textarea name="text" id="text" rows="5" cols="44"></textarea>
+                    </td>
+                </tr>
+
+                
             </tbody>
         </table>
         <p class="submit"><input type="submit" name="submit" id="submit" class="button button-primary" value="保存更改"></p>
@@ -221,6 +241,8 @@ function used_books_add(){
     $data = [];
     $data['name'] = trim($_POST['name']);
     $data['weight'] = trim($_POST['weight']);
+    $data['price'] = trim($_POST['price']);
+    $data['text'] = trim($_POST['text']);
     
     $upload_dir = wp_upload_dir();
     $target_dir = $upload_dir['basedir'].'/used_books'.$upload_dir['subdir'] . '/';
