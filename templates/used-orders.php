@@ -246,7 +246,7 @@ $action = isset($_GET['action'])? $_GET['action'] : "";
                     <div class="order_item" style="display: flex;">
 
                         <div class="l">
-                            <a href="/used-books/<?=$row->used_book_id;?>/"><img src="<?= str_replace("https://www.wenshuoge.com","https://wenshuoge.oss-cn-shanghai.aliyuncs.com",$used_book->image) ;?>?x-oss-process=style/w300h400"/></a>
+                            <a href="/used-books/<?=$row->used_book_id;?>/"><img src="<?= str_replace("https://www.wenshuoge.com","https://wenshuoge.oss-accelerate.aliyuncs.com",$used_book->image) ;?>?x-oss-process=style/w300h400"/></a>
                         </div>
                         <div class="r">
                             <div class="bookname"><?=$used_book->name;?></div>

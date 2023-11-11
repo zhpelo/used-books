@@ -351,7 +351,7 @@ function used_books_item_card($book){
     <div class="item">
         <a href="/used-books/<?=$book->id;?>/">
         
-            <img src="<?= str_replace("https://www.wenshuoge.com","https://wenshuoge.oss-cn-shanghai.aliyuncs.com",$book->image) ;?>?x-oss-process=style/w300h400" alt="<?=$book->name;?>" title="<?=$book->name;?>">
+            <img src="<?= str_replace("https://www.wenshuoge.com","https://wenshuoge.oss-accelerate.aliyuncs.com",$book->image) ;?>?x-oss-process=style/w300h400" alt="<?=$book->name;?>" title="<?=$book->name;?>">
             <h3><?=$book->name;?></h3>
         </a>
     </div>
@@ -362,7 +362,7 @@ function used_books_show_card($book){
 ?>
     <div class="buyBox">
         <div class="gallery">
-            <img src="<?=str_replace("https://www.wenshuoge.com","https://wenshuoge.oss-cn-shanghai.aliyuncs.com",$book->image);?>?x-oss-process=style/w600h800">
+            <img src="<?=str_replace("https://www.wenshuoge.com","https://wenshuoge.oss-accelerate.aliyuncs.com",$book->image);?>?x-oss-process=style/w600h800">
         </div>
         <div class="summary">
             <h1 class="title"><?=$book->name;?></h1>
@@ -623,5 +623,5 @@ function used_books_payment_return(){
 }
 
 function used_books_cdn_image($url,$spec = "w300h400"){
-    return str_replace("https://www.wenshuoge.com","https://wenshuoge.oss-cn-shanghai.aliyuncs.com",$url).'?x-oss-process=style/'.$spec;
+    return str_replace("https://www.wenshuoge.com","https://wenshuoge.oss-accelerate.aliyuncs.com",$url).'?x-oss-process=style/'.$spec;
 }
