@@ -102,7 +102,7 @@ $action = isset($_GET['action'])? $_GET['action'] : "";
 
                 $default_buyer_area = isset($_POST['buyer_area']) ? $_POST['buyer_area']: ($last_order ? $last_order->buyer_area : '');
 
-                $default_buyer_area_id = isset($_POST['buyer_area_id']) ? $_POST['buyer_area_id']: ($last_order ? $last_order->buyer_area_id : 0);
+                $default_buyer_area_id = isset($_POST['buyer_area_id']) ? $_POST['buyer_area_id']: ($last_order ? $last_order->buyer_area_id : "0");
 
                 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     used_books_process_order_post();
