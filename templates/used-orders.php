@@ -158,15 +158,12 @@ $action = isset($_GET['action'])? $_GET['action'] : "";
                     <script src="<?=plugin_dir_url( __FILE__ );?>../area_format_js.level3.js"></script>
                     <script>
                         BuildCitySelect("#city_select", <?=$default_buyer_area_id;?> ,set_buyer_area);
-                        var area_name = "";
 
                         function set_buyer_area(id,hasChild,cityData){
                         
                             if(!hasChild){
                                 id1 = id.toString().substring(0, 2);
                                 id2 = id.toString().substring(0, 4);
-
-                                console.log("开始设置 input 的值");
                                 jQuery("#buyer_area").val(cityData[id1]['name'] + " " + cityData[id2]['name'] + " " + cityData[id]['name']);
                                 jQuery("#buyer_area_id").val(id);
                             }
