@@ -141,7 +141,7 @@ function used_books_edit_page($id = null){
             <input type="hidden" name="id" value="<?= $data->id; ?>" />
         <?php } ?>
 
-        <table class="form-table" role="presentation">
+        <table class="form-table">
             <tbody>
                 <tr>
                     <th scope="row"><label for="title">书名</label></th>
@@ -366,10 +366,16 @@ function used_books_show_card($book){
         </div>
         <div class="summary">
             <h1 class="title"><?=$book->name;?></h1>
+            <p class="point">新人首单 4.9 元</p>
             <ul>
                 <li>
                     <b>价&nbsp;&nbsp;&nbsp;&nbsp;格</b>：<span style="color: red;font-size: 35px;
     line-height: 35px;font-style: italic;"><?=used_books_calculate_price();?></span> 元
+                </li>
+
+
+                <li>
+                    <b>成&nbsp;&nbsp;&nbsp;&nbsp;色</b>：全新
                 </li>
                 <li>
                     <b>运&nbsp;&nbsp;&nbsp;&nbsp;费</b>：包邮
@@ -381,10 +387,7 @@ function used_books_show_card($book){
                     <b>限&nbsp;&nbsp;&nbsp;&nbsp;制</b>：新疆，西藏，内蒙古地区不发货！
                 </li>
                 <li>
-                    <b>发货地</b>：浙江省义乌市
-                </li>
-                <li>
-                    <b>承&nbsp;&nbsp;&nbsp;&nbsp;诺</b>：由<a href="/used-books/">文硕阁</a>发货，并提供售后服务。
+                    <b>发货地</b>：浙江省 义乌市
                 </li>
                 <li>
                     <b>时&nbsp;&nbsp;&nbsp;&nbsp;效</b>：下单后 12 小时内发货！
@@ -446,6 +449,15 @@ function used_books_process_order_post() {
     if(strlen($_POST['buyer_address']) < 10){
         $error_message[] = "收货地址格式不正确！";
     }
+
+    if(strlen($_POST['buyer_area']) <  6){
+        $error_message[] = "地区不正确";
+    }
+
+    if(strlen($_POST['buyer_area_id']) < 6){
+        $error_message[] = "地区id不正确";
+    }
+
     if( $error_message){
         foreach($error_message as $msg){
             echo '<div class="error">' . $msg . '</div>';;
@@ -456,6 +468,8 @@ function used_books_process_order_post() {
             'used_book_id'  => $_POST['used_book_id'],
             'buyer_name'    => $_POST['buyer_name'],
             'buyer_phone'   => $_POST['buyer_phone'],
+            'buyer_area'    => $_POST['buyer_area'],
+            'buyer_area_id' => $_POST['buyer_area_id'],
             'buyer_address' => $_POST['buyer_address'],
             'price'         => used_books_calculate_price(),
             'buyer_notes'   => $_POST['buyer_notes'],

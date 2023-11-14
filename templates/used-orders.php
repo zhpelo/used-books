@@ -61,6 +61,14 @@ $action = isset($_GET['action'])? $_GET['action'] : "";
             font-size: 16px;
         }
     }
+
+    th, td{
+        padding: 12px 8px;
+    }
+    #city_select{
+        display: flex;
+        margin-bottom: 8px;
+    }
 </style>
 <div class="container-full" data-content="narrow" data-vertical-spacing="top:bottom">
         <div class="hero-section" data-type="type-1">
@@ -92,18 +100,22 @@ $action = isset($_GET['action'])? $_GET['action'] : "";
 
                 $default_buyer_address = isset($_POST['buyer_address']) ? $_POST['buyer_address']: ($last_order ? $last_order->buyer_address : '');
 
+                $default_buyer_area = isset($_POST['buyer_area']) ? $_POST['buyer_area']: ($last_order ? $last_order->buyer_area : '');
+
+                $default_buyer_area_id = isset($_POST['buyer_area_id']) ? $_POST['buyer_area_id']: ($last_order ? $last_order->buyer_area_id : 0);
+
                 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     used_books_process_order_post();
                 }
                 ?> 
                 <h2>请填写收件人信息</h2>
                 <form action="" method="post">
-                    <input name="used_book_id" type="hidden"  value="<?=$_GET['id'];?>">
-                    <table class="form-table" role="presentation"  style="background-color: #fff;">
+                    <input name="used_book_id" type="hidden" value="<?=$_GET['id'];?>">
+                    <table class="form-table" style="background-color: #fff;">
                         <tbody>
                             <tr>
-                                <th scope="row" style="width: 5rem;">
-                                    <label for="buyer_name">姓名</label>
+                                <th scope="row" style="width: 4rem;">
+                                    <label for="buyer_name"><b>姓&nbsp;&nbsp;&nbsp;名</b></label>
                                 </th>
                                 <td>
                                     <input name="buyer_name" type="text" id="buyer_name" value="<?=$default_buyer_name;?>" class="regular-text" required>
@@ -111,7 +123,7 @@ $action = isset($_GET['action'])? $_GET['action'] : "";
                             </tr>
                             <tr>
                                 <th scope="row">
-                                    <label for="buyer_phone">手机号</label>
+                                    <label for="buyer_phone"><b>手机号</b></label>
                                 </th>
                                 <td>
                                     <input name="buyer_phone" type="number" id="buyer_phone" value="<?=$default_buyer_phone;?>" class="regular-text" required>
@@ -119,16 +131,22 @@ $action = isset($_GET['action'])? $_GET['action'] : "";
                             </tr>
                             <tr>
                                 <th scope="row">
-                                    <label for="buyer_address">地址</label>
+                                    <label for="buyer_address"><b>地&nbsp;&nbsp;&nbsp;区</b></label>
                                 </th>
                                 <td>
+                                    <div id="city_select"></div>
+                                    
+                                    <input name="buyer_area" type="hidden" id="buyer_area" value="<?=$default_buyer_area;?>">
+
+                                    <input name="buyer_area_id" type="hidden" id="buyer_area_id" value="<?=$default_buyer_area_id;?>">
+
                                     <input name="buyer_address" type="text" id="buyer_address" value="<?=$default_buyer_address;?>" class="regular-text" required>
                                 </td>
                             </tr>
 
                             <tr>
                                 <th scope="row">
-                                    <label for="buyer_notes">备注</label>
+                                    <label for="buyer_notes"><b>备&nbsp;&nbsp;&nbsp;注</b></label>
                                 </th>
                                 <td>
                                     <input name="buyer_notes" type="text" id="buyer_notes" value="" class="regular-text">
@@ -136,6 +154,27 @@ $action = isset($_GET['action'])? $_GET['action'] : "";
                             </tr>
                         </tbody>
                     </table>
+
+                    <script src="<?=plugin_dir_url( __FILE__ );?>../area_format_js.level3.js"></script>
+                    <script>
+                        BuildCitySelect("#city_select", <?=$default_buyer_area_id;?> ,set_buyer_area);
+                        var area_name = "";
+
+                        function set_buyer_area(id,hasChild,cityData){
+                        
+                            if(!hasChild){
+                                id1 = id.toString().substring(0, 2);
+                                id2 = id.toString().substring(0, 4);
+
+                                console.log("开始设置 input 的值");
+                                jQuery("#buyer_area").val(cityData[id1]['name'] + " " + cityData[id2]['name'] + " " + cityData[id]['name']);
+                                jQuery("#buyer_area_id").val(id);
+                            }
+                            
+                            console.log(id ,cityData[id]['name']);
+                        }
+                    </script>
+
 
                     <div style="padding: 20px; text-align: center;">
                         <button type="submit" name="submit" id="submit" class="button button-primary" style="background-color: #00a0e9;padding: 9px 14px;">
@@ -173,12 +212,8 @@ $action = isset($_GET['action'])? $_GET['action'] : "";
                         <p>购买商品：<a href="/used-books/<?=$order->used_book_id;?>/"><?=$used_book->name;?></a></p>
                         <p>支付金额：¥ <?=$order->price;?></p>
                         <p>支付方式：支付宝</p>
-                        
                         <p>下单时间：<?=$order->create_date;?></p>
-                        
-                        
                         <p>订单状态：<?=used_books_order_status_display($order->status);?></p>
-        
                     <?php if($order->status >= 2){ ?>
                         <p>付款时间：<?=$order->paid_date;?></p>
                     <?php } ?>
@@ -190,7 +225,6 @@ $action = isset($_GET['action'])? $_GET['action'] : "";
                             <img src="https://free-barcode.com/cn/barcode.asp?bc1=<?=$order->express_number;?>&bc2=10&bc3=3.5&bc4=1.2&bc5=1&bc6=1&bc7=Arial&bc8=15&bc9=1" alt="微信扫一扫查看物流信息">
                         </p>
                         <p>用微信扫描上方条形码，可查看物流信息</p>
-
                     <?php } ?>
                         <br>
                         <hr>
