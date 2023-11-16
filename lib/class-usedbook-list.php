@@ -161,12 +161,12 @@ class UsedOrders_List_Table extends WP_List_Table {
         $columns = [
             'cb'        => '<input type="checkbox" />',
             'id'        => 'ID',
-            'buy_used_book'   => '购买商品',
-            'user_id'     => '所属用户',
-            'buyer'    => '收货信息',
+            'book'      => '购买商品',
+            'user_id'   => '所属用户',
+            'buyer'     => '收货信息',
             'date'      => '时间',
             'status'    => "订单状态",
-            'operate'  => '操作',
+            'operate'   => '操作',
         ];
         return $columns;
     }
@@ -229,11 +229,11 @@ class UsedOrders_List_Table extends WP_List_Table {
     public function column_buyer( $book ) {
         $html = $book['buyer_name']."<br>";
         $html .= $book['buyer_phone']."<br>";
-        $html .= $book['buyer_address']."<br>";
+        $html .= $book['buyer_area'];
         return $html;
 	}
 
-    public function column_buy_used_book( $book ) {
+    public function column_book( $book ) {
         global $wpdb;
         $used_book =  $wpdb->get_row("SELECT * FROM `{$wpdb->prefix}used_books` WHERE `id` = '{$book['used_book_id']}'");
         return "<a href=\"/used-books/{$used_book->id}/\"><img src=\"".used_books_cdn_image( $used_book->image ,"sm-square")."\" width=\"80\"/></a>";

@@ -545,6 +545,12 @@ function used_books_order_set_paid($order_id){
 function used_books_delivery_form() {
     global $wpdb;
 
+    $order_id = (int)$_GET['id'];
+
+    $order = used_books_get_order($order_id);
+    $used_book = used_books_get_book($order->used_book_id);
+
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $result = $wpdb->update(
@@ -567,21 +573,55 @@ function used_books_delivery_form() {
         }
     }else{
 ?>
-<form method="post" enctype="multipart/form-data">
-    <table class="form-table" role="presentation">
-        <tbody>
-            <tr>
-                <th scope="row"><label for="title">快递公司</label></th>
-                <td><input name="express_company" type="text" id="express_company" value="韵达快递" class="regular-text"></td>
-            </tr>
-            <tr>
-                <th scope="row"><label for="title">快递单号</label></th>
-                <td><input name="express_number" type="text" id="express_number" value="" class="regular-text"></td>
-            </tr>
-        </tbody>
-    </table>
-    <p class="submit"><input type="submit" name="submit" id="submit" class="button button-primary" value="立即发货"></p>
-</form>
+
+    <h3>订单信息</h3>
+    <ul>
+        <li>订单编号：<i>wsg-<?=$order->id;?></i></li>
+        <li>支付金额：¥ <?=$order->price;?></li>
+        <li>支付方式：支付宝</li>
+        <li>下单时间：<?=$order->create_date;?></li>
+        <li>订单状态：<?=used_books_order_status_display($order->status);?></li>
+    </ul>
+
+    
+    <h3>商品信息</h3>
+    <p><?=$used_book->name;?> [<a target="_blank" href="/used-book/<?=$used_book->id;?>/">前台查看</a>]</p>
+    <p><?=$used_book->weight;?> g</p>
+    <p><?=$used_book->price;?> 元</p>
+    <p><img src="<?=used_books_cdn_image($used_book->image,"sm");?>" width="100"/></p>
+    <p>
+    <?php foreach(array_filter( explode(";",$used_book->images) ) as $image){ ?>
+        <img src="<?=used_books_cdn_image($image,"sm");?>" width="100"/>
+    <?php } ?>
+
+    </p>
+    <hr>
+    <h3>收货信息</h3>
+    <ul>
+        <li><b>姓名：</b><?=$order->buyer_name;?></li>
+        <li><b>手机：</b><?=$order->buyer_phone;?></li>
+        <li><b>地址：</b><?=$order->buyer_area." ".$order->buyer_address;?></li>
+    </ul>
+
+    <hr>
+    <h3>发货信息</h3>
+    <form method="post" enctype="multipart/form-data">
+        <p>
+            <select name="express_company" id="express_company">
+                <option value="韵达快递">韵达快递</option>
+                <option value="中通快递">中通快递</option>
+                <option value="申通快递">申通快递</option>
+                <option value="圆通快递">圆通快递</option>
+                <option value="邮政快递">邮政快递</option>
+                <option value="极兔快递">极兔快递</option>
+                <option value="顺丰快递">顺丰快递</option>
+                <option value="京东快递">京东快递</option>
+            </select>
+            
+            <input name="express_number" style="vertical-align: top;" type="text" id="express_number" value="" class="regular-text">
+        </p>
+        <p class="submit"><input type="submit" name="submit" id="submit" class="button button-primary" value="立即发货"></p>
+    </form>
 <?php
     }
 }
