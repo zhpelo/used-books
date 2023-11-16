@@ -25,10 +25,12 @@ function usedbooks_initializen() {
                     `image` varchar(255) NOT NULL,
                     `images` text NOT NULL COMMENT '图册',
                     `weight` int(11) NOT NULL COMMENT '重量',
-                    `price` int(11) NOT NULL COMMENT '价格',
-                    `text` int(11) NOT NULL COMMENT '文字',
+                    `price` varchar(9) NOT NULL COMMENT '价格',
+                    `text` text NOT NULL COMMENT '文字',
+                    `sales` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '销量',
                     `in_date` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '入库时间',
                     `out_date` datetime DEFAULT NULL COMMENT '出库时间',
+                    `status` tinyint(1) unsigned DEFAULT '1' COMMENT '商品状态',
                     PRIMARY KEY (`id`)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
@@ -42,10 +44,18 @@ function usedbooks_initializen() {
                     `user_id` int(11) NOT NULL COMMENT '用户 id',
                     `buyer_name` varchar(20) NOT NULL COMMENT '买家姓名',
                     `buyer_phone` varchar(18) NOT NULL COMMENT '买家手机号',
+                    `buyer_area` varchar(18) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '买家地区',
+                    `buyer_area_id` int(8) NOT NULL COMMENT '买家地区id',
                     `buyer_address` varchar(255) NOT NULL COMMENT '买家地址',
                     `used_book_id` int(11) NOT NULL COMMENT '二手书id',
+                    `price` varchar(9) NOT NULL COMMENT '订单价格',
+                    `buyer_notes` varchar(120) NOT NULL COMMENT '买家备注',
+                    `express_company` varchar(60) DEFAULT NULL COMMENT '快递公司',
+                    `express_number` varchar(60) DEFAULT NULL COMMENT '快递号码',
                     `create_date` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '创建时间',
-                    `paid_date` datetime NOT NULL COMMENT '付款时间',
+                    `paid_date` datetime DEFAULT NULL COMMENT '付款时间',
+                    `delivery_date` datetime DEFAULT NULL COMMENT '发货时间',
+                    `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '订单状态',
                     PRIMARY KEY (`id`)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
