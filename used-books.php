@@ -366,11 +366,11 @@ function used_books_show_card($book){
         </div>
         <div class="summary">
             <h1 class="title"><?=$book->name;?></h1>
-            <p class="point">新人首单 4.9 元</p>
+            <p class="point"><?=(int)$book->price <= 10 ?"新人首单仅4.9元，包邮到家！":"全网低价好书，一件也包邮！";?></p>
             <ul>
                 <li>
                     <b>价&nbsp;&nbsp;&nbsp;&nbsp;格</b>：<span style="color: red;font-size: 35px;
-    line-height: 35px;font-style: italic;"><?=used_books_calculate_price();?></span> 元
+    line-height: 35px;font-style: italic;"><?=used_books_calculate_price($book->price);?></span> 元
                 </li>
 
 
@@ -420,26 +420,36 @@ function used_books_show_card($book){
 }
 
 
-function used_books_qrcode_pay($order_id)
+function used_books_qrcode_pay($order_id ,$type = "alipay")
 {
+    $order = used_books_get_order($order_id);
+    if($order->status != 1){
+        echo "订单状态异常，可能已经支付成功，请返回<a href=\"/used-orders/\">订单列表</a>查看";
+    }
 	$arr = array(
 		"pid" => CS_PAY_PID,
-		"type" => "alipay",
+		"type" => $type,
 		"notify_url" => home_url()."/wsg/used-books-payment-callback/",
 		"return_url" => home_url()."/wsg/used-books-payment-return/",
 		"out_trade_no" => 'wsg-'.$order_id,
 		"name" => "【文硕阁】购买二手书籍",
-		"money" => used_books_calculate_price(),
+		"money" => used_books_calculate_price($order->price),
 		"sign_type" => "MD5"
 	);
 	$payurl= "http://7-pay.cn/submit.php?pid=".CS_PAY_PID."&type={$arr['type']}&notify_url={$arr['notify_url']}&return_url={$arr['return_url']}&out_trade_no={$arr['out_trade_no']}&name={$arr['name']}&money={$arr['money']}&sign_type={$arr['sign_type']}&sign=".cs_get_sign($arr,CS_PAY_KEY);
-
+    echo "<p>正在跳转支付...   如何没有自动跳转请<a href=\"$payurl\">点击这里</a>手动跳转</p>";
     echo "<script type=\"text/javascript\">window.location.href=\"$payurl\";</script>";
 }
 
 function used_books_process_order_post() {
     global $wpdb;
     $error_message = [];
+
+    $used_book = used_books_get_book((int)$_POST['used_book_id']);
+    if(!$used_book){
+        $error_message[] = "请求处理失败，请重试！";
+    }
+
     if(!isset($_POST['buyer_name'])){
         $error_message[] = "姓名格式不正确！";
     }
@@ -449,7 +459,6 @@ function used_books_process_order_post() {
     if(strlen($_POST['buyer_address']) < 10){
         $error_message[] = "收货地址格式不正确！";
     }
-
     if(strlen($_POST['buyer_area']) <  6){
         $error_message[] = "地区不正确";
     }
@@ -457,7 +466,6 @@ function used_books_process_order_post() {
     if(strlen($_POST['buyer_area_id']) < 6){
         $error_message[] = "地区id不正确";
     }
-
     if( $error_message){
         foreach($error_message as $msg){
             echo '<div class="error">' . $msg . '</div>';;
@@ -471,7 +479,7 @@ function used_books_process_order_post() {
             'buyer_area'    => $_POST['buyer_area'],
             'buyer_area_id' => $_POST['buyer_area_id'],
             'buyer_address' => $_POST['buyer_address'],
-            'price'         => used_books_calculate_price(),
+            'price'         => used_books_calculate_price($used_book->price),
             'buyer_notes'   => $_POST['buyer_notes'],
             'status'        => 1,
             'create_date'   => current_time('mysql'),
@@ -632,14 +640,18 @@ function used_books_get_order($order_id){
     return $wpdb->get_row(" SELECT * FROM `{$wpdb->prefix}used_orders` WHERE `id` = '{$order_id}' LIMIT 1");
 }
 
-function used_books_calculate_price(){
-    $price = 4.9;
+function used_books_calculate_price($price){
+    if($price > 10) return $price;
+
+    
     if(is_user_logged_in()){
         global $wpdb;
         $isBuy = $wpdb->get_row(" SELECT * FROM `{$wpdb->prefix}used_orders` WHERE `user_id` = '".get_current_user_id()."' AND `status` > 1 LIMIT 1");
-        if($isBuy){
-            $price = 9.9;
+        if(!$isBuy){
+            $price = 4.9;
         }
+    }else{
+        $price = 4.9;
     }
 
     return $price;
