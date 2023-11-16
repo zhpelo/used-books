@@ -122,9 +122,17 @@ function used_books_page()
                         used_books_edit_page();
                     }
                     break;
-                case 'ban':
-                    $id = input('id');
-                    exit("开始下架书籍");
+                case 'edit':
+                    $book_id = input('id');
+                    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                        if(used_books_edit($_POST)){
+                            echo '<div id="message" class="updated notice"><p>二手书籍修改完成，<a href="/used-books/'.$book_id.'/">去前台查看</a></p></div>';
+                        }else{
+                            echo '<div id="message" class="notice notice-error"><p><strong>出现错误！</strong></p></div>';
+                        }
+                    }else{
+                        used_books_edit_page($book_id);
+                    }
                     break;
                 default:
                     echo '<form method="post">';
@@ -142,8 +150,7 @@ function used_books_page()
 
 function used_books_edit_page($id = null){
     if ($id) {
-        $data = cs_get_ebook_item($id);
-        $data->tags = implode(",", array_column(cs_get_ebook_tags($id), 'name'));
+        $data = used_books_get_book($id);
     }
 ?>
     <form method="post" enctype="multipart/form-data">
@@ -183,6 +190,14 @@ function used_books_edit_page($id = null){
                     </th>
                     <td>
                         <input name="images[]" type="file" class="regular-text" accept="image/*" multiple="multiple" />
+                        <br>
+                        <?php 
+                            if($id){
+                                foreach(array_filter( explode(";",$data->images) ) as $image){
+                                    echo "<img src=\"".used_books_cdn_image($image,"sm-square") ."\" width=\"100\"/>";
+                                }
+                            }
+                        ?>
                     </td>
                 </tr>
 
@@ -246,42 +261,59 @@ function used_books_image_upload($key){
 	return $upload_dir['url'] .'/'. $file_name;
 }
 
-function used_books_add(){
+function used_books_add($post){
     global $wpdb;
-    $data = [];
-    $data['name'] = trim($_POST['name']);
-    $data['weight'] = trim($_POST['weight']);
-    $data['price'] = trim($_POST['price']);
-    $data['text'] = trim($_POST['text']);
-    
-    $upload_dir = wp_upload_dir();
-    $target_dir = $upload_dir['basedir'].'/used_books'.$upload_dir['subdir'] . '/';
-    $url_dir = $upload_dir['baseurl'].'/used_books'.$upload_dir['subdir'] . '/';
-    mkdirs($target_dir);
-
-    $file_name = wp_unique_filename($target_dir,  $_FILES['image']['name']);
-
-    if( move_uploaded_file( $_FILES['image']['tmp_name'], $target_dir . $file_name) ){
-        
-        $data['image'] = $url_dir . $file_name;
-    }
-
-    $file_array = reArrayFiles($_FILES['images']);
-    $data['images'] = "";
-    foreach ($file_array as $file) {
-        $file_name = wp_unique_filename($target_dir,  $file['name']);
-        // 移动文件到目标目录
-        if (move_uploaded_file($file['tmp_name'], $target_dir . $file_name)) {
-            $data['images'] .= $url_dir . $file_name.";";
-        }
-    }
-    $data['in_date'] = current_time('mysql');
-    
-    
+    $data = [
+        'name'      => trim($post['name']),
+        'image'     => used_books_updaload('image'),
+        'images'    => used_books_updaload('images'),
+        'weight'    => trim($post['weight']),
+        'price'     => trim($post['price']),
+        'text'      => trim($post['text']),
+        'in_date'   => current_time('mysql'),
+    ];
     $wpdb->insert("{$wpdb->prefix}used_books", $data);
     return $wpdb->insert_id;
 }
 
+function used_books_edit($post){
+    global $wpdb;
+    $new_data = [
+        'name'      => trim($post['name']),
+        // 'image'     => used_books_updaload('image'),
+        // 'images'    => $post[''].used_books_updaload('images'),
+        'weight'    => trim($post['weight']),
+        'price'     => trim($post['price']),
+        'text'      => trim($post['text']),
+    ];
+    return $wpdb->update("{$wpdb->prefix}used_books", $new_data, ['id' => $post['id']]);
+}
+
+function used_books_updaload($key = "image"){
+    $upload_dir = wp_upload_dir();
+    $target_dir = $upload_dir['basedir'].'/used_books'.$upload_dir['subdir'] . '/';
+    $url_dir = $upload_dir['baseurl'].'/used_books'.$upload_dir['subdir'] . '/';
+    mkdirs($target_dir);
+    if(is_string($_FILES[$key]['name'])){
+        $file_name = wp_unique_filename($target_dir,  $_FILES[$key]['name']);
+        if( move_uploaded_file( $_FILES[$key]['tmp_name'], $target_dir . $file_name) ){ 
+            return $url_dir.$file_name;
+        }else{
+            return false;
+        }
+    } elseif( is_array( $_FILES[$key]['name']) ){
+        $file_array = reArrayFiles($_FILES[$key]);
+        $images = "";
+        foreach ($file_array as $file) {
+            $file_name = wp_unique_filename($target_dir,  $file['name']);
+            // 移动文件到目标目录
+            if (move_uploaded_file($file['tmp_name'], $target_dir . $file_name)) {
+                $images .= $url_dir . $file_name.";";
+            }
+        }
+        return $images;
+    }
+}
 
 function reArrayFiles(&$file_post) {
 

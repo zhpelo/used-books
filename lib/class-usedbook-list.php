@@ -110,7 +110,8 @@ class UsedBook_List_Table extends WP_List_Table {
 	}
 
     public function column_operate( $book ) {
-        $html = "[<a href=\"?page=books&action=edit&id={$book['id']}\">下架</a>]"; 
+        $html = "[<a href=\"?page=used_books&action=edit&id={$book['id']}\">编辑</a>]<br>"; 
+        $html .= "[<a href=\"?page=used_books&action=delisting&id={$book['id']}\">下架</a>]"; 
 		return $html;
 	}
 
