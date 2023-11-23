@@ -155,7 +155,7 @@ $action = isset($_GET['action'])? $_GET['action'] : "";
                         </tbody>
                     </table>
 
-                    <script src="<?=plugin_dir_url( __FILE__ );?>../area_format_js.level3.js"></script>
+                    <script src="<?=plugin_dir_url( __FILE__ );?>../assets/js/area_format_js.level3.js"></script>
                     <script>
                         BuildCitySelect("#city_select", <?=$default_buyer_area_id;?> ,set_buyer_area);
 
