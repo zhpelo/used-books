@@ -188,6 +188,7 @@ class UsedOrders_List_Table extends WP_List_Table {
         $filter = isset($_REQUEST['filter']) ? sanitize_text_field($_REQUEST['filter']) : '';
         $paged = isset($_REQUEST['paged']) ? absint($_REQUEST['paged']) : 1;
         $per_page = isset($_REQUEST['per_page']) ? absint($_REQUEST['per_page']) : 20;
+        $status = isset($_REQUEST['status']) ? absint($_REQUEST['status']) : 0;
         
         $args = array(
             'search' => $search,
@@ -196,6 +197,7 @@ class UsedOrders_List_Table extends WP_List_Table {
             'filter' => $filter,
             'paged' => $paged,
             'per_page' => $per_page,
+            'status' => $status,
         );
 
         $columns  = $this->get_columns();
@@ -214,11 +216,15 @@ class UsedOrders_List_Table extends WP_List_Table {
 
     private function get_data($args) {
         global $wpdb;
+
         $offset = ($args['paged'] - 1) * $args['per_page'];
         $table_name = $wpdb->prefix."used_orders";
         $where = "";
         if (!empty($args['search'])) {
-            $where = " WHERE  (`buyer_name` LIKE '%{$args['search']}%' OR `buyer_phone` LIKE '%{$args['search']}%' OR `buyer_address` LIKE '%{$args['search']}%' OR `express_number` LIKE '%{$args['search']}%') ";
+            $where = " WHERE (`buyer_name` LIKE '%{$args['search']}%' OR `buyer_phone` LIKE '%{$args['search']}%' OR `buyer_address` LIKE '%{$args['search']}%' OR `express_number` LIKE '%{$args['search']}%') ";
+        }
+        if (!empty($args['status'])) {
+            $where = " WHERE `status` = '{$args['status']}'";
         }
         $orderby = " ORDER BY {$args['orderby']} {$args['order']}";
         $limit = " LIMIT {$args['per_page']} OFFSET $offset";
@@ -282,6 +288,31 @@ class UsedOrders_List_Table extends WP_List_Table {
 	public function no_items() {
 		_e( 'No Used Ordes found.' );
 	}
+
+    function extra_tablenav($which) {
+        if ($which == 'top') {
+            $status = input("status");
+            ?>
+            <ul class="subsubsub">
+                <li class="all">
+                    <a href="admin.php?page=used_orders" class="<?=!$status?"current":""?>" aria-current="page">全部</a> |
+                </li>
+                <li class="status1">
+                    <a href="admin.php?page=used_orders&status=1" class="<?=$status==1?"current":""?>">待付款</a> |
+                </li>
+                <li class="status2">
+                    <a href="admin.php?page=used_orders&status=2" class="<?=$status==2?"current":""?>">待发货</a> |
+                </li>
+                <li class="status3">
+                    <a href="admin.php?page=used_orders&status=3" class="<?=$status==3?"current":""?>">待收货</a> |
+                </li>
+                <li class="status4">
+                    <a href="admin.php?page=used_orders&status=4" class="<?=$status==4?"current":""?>">已完成</a>
+                </li>
+            </ul>
+            <?php
+        }
+    }
 }
 
 
