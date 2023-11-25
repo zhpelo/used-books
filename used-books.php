@@ -25,7 +25,7 @@ function usedbooks_initializen() {
                     `image` varchar(255) NOT NULL,
                     `images` text NOT NULL COMMENT '图册',
                     `weight` int(11) NOT NULL COMMENT '重量',
-                    `price` varchar(9) NOT NULL COMMENT '价格',
+                    `order_money` varchar(9) NOT NULL COMMENT '价格',
                     `text` text NOT NULL COMMENT '文字',
                     `sales` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '销量',
                     `in_date` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '入库时间',
@@ -48,7 +48,7 @@ function usedbooks_initializen() {
                     `buyer_area_id` int(8) NOT NULL COMMENT '买家地区id',
                     `buyer_address` varchar(255) NOT NULL COMMENT '买家地址',
                     `used_book_id` int(11) NOT NULL COMMENT '二手书id',
-                    `price` varchar(9) NOT NULL COMMENT '订单价格',
+                    `order_money` varchar(9) NOT NULL COMMENT '订单价格',
                     `buyer_notes` varchar(120) NOT NULL COMMENT '买家备注',
                     `express_company` varchar(60) DEFAULT NULL COMMENT '快递公司',
                     `express_number` varchar(60) DEFAULT NULL COMMENT '快递号码',
@@ -211,10 +211,10 @@ function used_books_edit_page($id = null){
                 </tr>
                 <tr>
                     <th scope="row">
-                        <label for="price">售价</label>
+                        <label for="order_money">售价</label>
                     </th>
                     <td>
-                        <input name="price" type="text" id="price" value="<?= $id ? $data->price : "9.9"; ?>" class="regular-text"> 元
+                        <input name="order_money" type="text" id="order_money" value="<?= $id ? $data->order_money : "9.9"; ?>" class="regular-text"> 元
                     </td>
                 </tr>
 
@@ -268,7 +268,7 @@ function used_books_add($post){
         'image'     => used_books_updaload('image'),
         'images'    => used_books_updaload('images'),
         'weight'    => trim($post['weight']),
-        'price'     => trim($post['price']),
+        'order_money'     => trim($post['order_money']),
         'text'      => trim($post['text']),
         'in_date'   => current_time('mysql'),
     ];
@@ -283,7 +283,7 @@ function used_books_edit($post){
         // 'image'     => used_books_updaload('image'),
         // 'images'    => $post[''].used_books_updaload('images'),
         'weight'    => trim($post['weight']),
-        'price'     => trim($post['price']),
+        'order_money'     => trim($post['order_money']),
         'text'      => trim($post['text']),
     ];
     return $wpdb->update("{$wpdb->prefix}used_books", $new_data, ['id' => $post['id']]);
@@ -414,8 +414,6 @@ function used_books_show_card($book){
                     <b>价&nbsp;&nbsp;&nbsp;&nbsp;格</b>：<span style="color: red;font-size: 35px;
     line-height: 35px;font-style: italic;"><?=used_books_calculate_price($book->price);?></span> 元
                 </li>
-
-
                 <li>
                     <b>成&nbsp;&nbsp;&nbsp;&nbsp;色</b>：全新
                 </li>
@@ -436,11 +434,15 @@ function used_books_show_card($book){
                 </li>
             </ul>
             <div class="wp-block-buttons is-layout-flex wp-block-buttons-is-layout-flex">
-                <div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="/used-orders/?action=buy&id=<?=$book->id;?>" style="background-color: red;">
+                <div class="wp-block-button">
+                    <a class="wp-block-button__link wp-element-button" href="/used-orders/?action=buy&id=<?=$book->id;?>" style="background-color: red;">
                 
-                <svg t="1698762558636" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="7094" width="20" height="20"><path d="M866.24 291.2a32 32 0 0 0-32-30.4H704v-7.36a207.36 207.36 0 0 0-54.72-136 189.44 189.44 0 0 0-139.2-51.84 185.92 185.92 0 0 0-139.84 52.48A197.76 197.76 0 0 0 320 249.28v11.52H189.44a32 32 0 0 0-32 30.4L128 924.8a32 32 0 0 0 8.96 23.68A32 32 0 0 0 160 960h704a32 32 0 0 0 23.04-9.92 32 32 0 0 0 8.96-25.28zM384 248.32a131.52 131.52 0 0 1 32-86.08 124.8 124.8 0 0 1 93.44-32A120.64 120.64 0 0 1 640 253.44v7.36h-256zM193.6 896l26.56-569.6H320v92.8h64v-92.8h256v92.8h64v-92.8h99.84L832 896z" p-id="7095" fill="#ffffff"></path></svg>
+                    <svg t="1698762558636" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="7094" width="20" height="20"><path d="M866.24 291.2a32 32 0 0 0-32-30.4H704v-7.36a207.36 207.36 0 0 0-54.72-136 189.44 189.44 0 0 0-139.2-51.84 185.92 185.92 0 0 0-139.84 52.48A197.76 197.76 0 0 0 320 249.28v11.52H189.44a32 32 0 0 0-32 30.4L128 924.8a32 32 0 0 0 8.96 23.68A32 32 0 0 0 160 960h704a32 32 0 0 0 23.04-9.92 32 32 0 0 0 8.96-25.28zM384 248.32a131.52 131.52 0 0 1 32-86.08 124.8 124.8 0 0 1 93.44-32A120.64 120.64 0 0 1 640 253.44v7.36h-256zM193.6 896l26.56-569.6H320v92.8h64v-92.8h256v92.8h64v-92.8h99.84L832 896z" p-id="7095" fill="#ffffff"></path></svg>
+                    
+                    &nbsp;&nbsp;立即购买</a>
                 
-                &nbsp;&nbsp;立即购买</a></div>
+                </div>
+                
                 <div class="wp-block-button">
                     <a class="wp-block-button__link wp-element-button" style="background-color: white; color:black" href="/contact-us/">
                     <svg t="1698762234706" class="icon" viewBox="0 0 1242 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1582" width="20" height="20"><path d="M276.743688 31.082747C186.540651 64.041687 104.812048 125.270062 54.361358 208.677492 8.606987 283.867611-11.893734 347.488616 10.231619 433.531224 32.369608 529.051077 99.026894 610.711245 178.527378 664.192112 163.562333 708.268342 158.599331 746.176838 153.241979 793.661668 213.726318 769.97044 236.727901 752.630478 286.778456 725.702122 347.169339 745.28871 428.587568 754.515188 491.973145 752.448047 424.470537 427.943582 695.89773 324.409217 893.269788 329.56092 865.623248 208.677497 796.986424 118.654356 700.75188 64.648162 573.142548-8.2271 414.082616-19.21199 276.743688 31.082747ZM360.220315 263.951829C351.85832 304.755434 297.895893 324.439586 266.378822 297.080385 229.885788 270.971544 240.087502 206.129635 283.035409 193.107378 325.063457 176.651653 372.868378 219.964023 360.220315 263.951829L360.220315 263.951829ZM664.517052 251.807704C664.874055 298.842577 603.140014 328.155857 568.407425 296.214323 532.389618 270.084732 542.599953 206.406934 584.893106 193.173093 622.711803 178.087803 667.444489 210.451949 664.517052 251.807704L664.517052 251.807704Z" fill="#30C730" p-id="1583"></path><path d="M1068.665237 401.293428C950.759528 344.063296 796.155145 340.080632 670.146638 401.29343 586.791846 441.785774 530.910016 508.798605 511.412699 601.876298 495.367042 670.357375 511.943042 746.322966 547.738475 806.091779 601.106738 895.778572 671.0012 944.89232 771.252416 963.294669 843.857258 978.25156 934.764331 970.486807 1001.696707 949.896938 1043.898815 966.595443 1090.349546 1002.543127 1131.305913 1022.439486 1120.797806 986.53707 1109.586126 950.777341 1097.45152 915.382722 1143.316357 882.161971 1185.133568 840.933997 1210.28018 789.025525 1247.669004 716.759062 1249.90803 627.269511 1216.947591 552.929899 1186.342062 482.635866 1136.546388 434.242191 1068.665237 401.293428ZM796.071025 576.285972C784.874375 612.115777 733.365318 622.928991 708.616704 595.576855 681.240669 570.392793 691.88864 517.566914 727.758071 506.350864 767.651159 489.305001 813.548508 535.875601 796.071025 576.285972L796.071025 576.285972ZM1047.444295 581.227295C1034.168173 613.595632 987.769102 621.04848 964.867247 596.014907 953.772668 585.573654 951.073986 569.750547 946.628332 555.739558 952.560216 530.537944 968.652355 504.29175 996.052013 503.156339 1033.972617 497.73815 1067.238973 545.816053 1047.444295 581.227295L1047.444295 581.227295Z" fill="#30C730" p-id="1584"></path></svg>
@@ -469,19 +471,64 @@ function used_books_qrcode_pay($order_id ,$type = "alipay")
     if($order->status != 1){
         echo "订单状态异常，可能已经支付成功，请返回<a href=\"/used-orders/\">订单列表</a>查看";
     }
-	$arr = array(
-		"pid" => CS_PAY_PID,
-		"type" => $type,
-		"notify_url" => home_url()."/wsg/used-books-payment-callback/",
-		"return_url" => home_url()."/wsg/used-books-payment-return/",
-		"out_trade_no" => 'wsg-'.$order_id,
-		"name" => "【文硕阁】购买二手书籍",
-		"money" => used_books_calculate_price($order->price),
-		"sign_type" => "MD5"
-	);
-	$payurl= "http://7-pay.cn/submit.php?pid=".CS_PAY_PID."&type={$arr['type']}&notify_url={$arr['notify_url']}&return_url={$arr['return_url']}&out_trade_no={$arr['out_trade_no']}&name={$arr['name']}&money={$arr['money']}&sign_type={$arr['sign_type']}&sign=".cs_get_sign($arr,CS_PAY_KEY);
-    echo "<p>正在跳转支付...   如何没有自动跳转请<a href=\"$payurl\">点击这里</a>手动跳转</p>";
-    echo "<script type=\"text/javascript\">window.location.href=\"$payurl\";</script>";
+    if($order->payment_method == "alipay"){
+        $arr = array(
+            "pid" => CS_PAY_PID,
+            "type" => $type,
+            "notify_url" => home_url()."/wsg/used-books-payment-callback/",
+            "return_url" => home_url()."/wsg/used-books-payment-return/",
+            "out_trade_no" => 'wsg-'.$order_id,
+            "name" => "【文硕阁】购买二手书籍",
+            "money" => $order->order_money,
+            "sign_type" => "MD5"
+        );
+        $payurl= "http://7-pay.cn/submit.php?pid=".CS_PAY_PID."&type={$arr['type']}&notify_url={$arr['notify_url']}&return_url={$arr['return_url']}&out_trade_no={$arr['out_trade_no']}&name={$arr['name']}&money={$arr['money']}&sign_type={$arr['sign_type']}&sign=".cs_get_sign($arr,CS_PAY_KEY);
+        echo "<p>正在跳转支付...   如何没有自动跳转请<a href=\"$payurl\">点击这里</a>手动跳转</p>";
+        echo "<script type=\"text/javascript\">window.location.href=\"$payurl\";</script>";
+
+    }else{
+        require_once WSG_DIR . 'includes/wxpay.class.php';
+        $wxPay = new WxpayService();
+        $wxPay->pay_init(WSG_MCHID, WSG_APPID, WSG_APIKEY, WSG_KEYPEM, WSG_SERIALNUMBER);
+        $wxPay->setTotalFee( 1);
+        $wxPay->setOutTradeNo('wsg-'.$order_id);
+        $wxPay->setOrderName("【文硕阁】购买二手书籍");
+        $wxPay->setNotifyUrl( home_url() . "/wsg/used-books-payment-wxpay-notify/");
+        $result = $wxPay->doPay();
+        if (isset($result['code'])) {
+            echo $result['code'] . ':' . $result['message'];
+            exit();
+        }
+        $code_url = 'https://wenhairu.com/static/api/qr/?size=300&text=' . $result['code_url'];
+        echo <<<EOT
+        
+        <div id="center_info"><img src="{$code_url}"/></div>
+        
+
+        <script>
+            timename = setInterval("check()", 3000);
+            function check() {
+                $.ajax({
+                    url: '/wsg/check_order/?order_number=wsg-<?=$order->id;?>',
+                    type: 'get',
+                    success: function(data) {
+                        console.log(data);
+                        if (data == "paided") {
+                            $("#center_info").html("<div style=\"text-align:center;width:300px\"><img src=\"/wp-content/plugins/wsg/assets/img/success.png\"><br>支付成功，3秒后将跳转到商户网站...</div>");
+                            setTimeout(function() {
+                                top.location.href = "/vip/";
+                            }, 3000);
+
+                        }
+                    }
+                });
+            }
+        </script>
+
+        EOT;
+        die();
+    }
+	
 }
 
 function used_books_process_order_post() {
@@ -509,6 +556,13 @@ function used_books_process_order_post() {
     if(strlen($_POST['buyer_area_id']) < 6){
         $error_message[] = "地区id不正确";
     }
+
+    if(!isset($_POST['payment_method'])){
+        $error_message[] = "支付方式未选择！";
+    }elseif(!in_array($_POST['payment_method'], ['weixin','alipay']) ){
+        $error_message[] = "此支付方式未启用！";
+    }
+
     if( $error_message){
         foreach($error_message as $msg){
             echo '<div class="error">' . $msg . '</div>';;
@@ -522,8 +576,9 @@ function used_books_process_order_post() {
             'buyer_area'    => $_POST['buyer_area'],
             'buyer_area_id' => $_POST['buyer_area_id'],
             'buyer_address' => $_POST['buyer_address'],
-            'price'         => used_books_calculate_price($used_book->price),
+            'order_money'   => used_books_calculate_price($used_book->price),
             'buyer_notes'   => $_POST['buyer_notes'],
+            'payment_method' => $_POST['payment_method'],
             'status'        => 1,
             'create_date'   => current_time('mysql'),
         ];
@@ -628,7 +683,7 @@ function used_books_delivery_form() {
     <h3>订单信息</h3>
     <ul>
         <li>订单编号：<i>wsg-<?=$order->id;?></i></li>
-        <li>支付金额：¥ <?=$order->price;?></li>
+        <li>支付金额：¥ <?=$order->order_money;?></li>
         <li>支付方式：支付宝</li>
         <li>下单时间：<?=$order->create_date;?></li>
         <li>订单状态：<?=used_books_order_status_display($order->status);?></li>
@@ -638,7 +693,7 @@ function used_books_delivery_form() {
     <h3>商品信息</h3>
     <p><?=$used_book->name;?> [<a target="_blank" href="/used-book/<?=$used_book->id;?>/">前台查看</a>]</p>
     <p><?=$used_book->weight;?> g</p>
-    <p><?=$used_book->price;?> 元</p>
+    <p><?=$used_book->order_money;?> 元</p>
     <p><img src="<?=used_books_cdn_image($used_book->image,"sm");?>" width="100"/></p>
     <p>
     <?php foreach(array_filter( explode(";",$used_book->images) ) as $image){ ?>
@@ -683,21 +738,20 @@ function used_books_get_order($order_id){
     return $wpdb->get_row(" SELECT * FROM `{$wpdb->prefix}used_orders` WHERE `id` = '{$order_id}' LIMIT 1");
 }
 
-function used_books_calculate_price($price){
-    if($price > 10) return $price;
-
+function used_books_calculate_price($order_money){
+    if($order_money > 10) return $order_money;
     
     if(is_user_logged_in()){
         global $wpdb;
         $isBuy = $wpdb->get_row(" SELECT * FROM `{$wpdb->prefix}used_orders` WHERE `user_id` = '".get_current_user_id()."' AND `status` > 1 LIMIT 1");
         if(!$isBuy){
-            $price = 4.9;
+            $order_money = 4.9;
         }
     }else{
-        $price = 4.9;
+        $order_money = 4.9;
     }
 
-    return $price;
+    return $order_money;
 }
 
 function used_books_get_book($book_id){
